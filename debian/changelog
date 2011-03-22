@@ -1,5 +1,6 @@
-php5-yaz (1.0.8-1) unreleased; urgency=low
+php5-yaz (1.0.14-1indexdata) stable; urgency=low
 
-  * First version of php5 yaz.
+  * Upstream.
 
- -- Adam Dickmeiss <adam@indexdata.dk>  Tue, 13 Mar 2007 09:21:13 +0100
+ -- Adam Dickmeiss <adam@indexdata.dk>  Tue, 22 Mar 2011 14:57:52 +0100
+
