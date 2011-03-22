@@ -1,0 +1,5 @@
+php5-yaz (1.0.8-1) unreleased; urgency=low
+
+  * First version of php5 yaz.
+
+ -- Adam Dickmeiss <adam@indexdata.dk>  Tue, 13 Mar 2007 09:21:13 +0100

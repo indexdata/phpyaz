@@ -1,0 +1,12 @@
+Source: php5-yaz
+Section: web
+Priority: optional
+Maintainer: Adam Dickmeiss <adam@indexdata.dk>
+Build-Depends: php5-dev, libyaz4-dev
+Standards-Version: 3.1.1
+
+Package: php5-yaz
+Architecture: any
+Depends: ${shlibs:Depends}, php5-common
+Description: Z39.50 Module for PHP
+ PHP/YAZ is a Z39.50 Module for PHP built with the YAZ toolkit.
