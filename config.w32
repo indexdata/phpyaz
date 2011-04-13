@@ -26,7 +26,7 @@ function yaz_check_version()
 }
 
 if (PHP_YAZ != "no") {
-	if (yaz_check_version() && CHECK_LIB("yaz3.lib", "yaz", PHP_YAZ)) {
+	if (yaz_check_version() && CHECK_LIB("yaz4.lib", "yaz", PHP_YAZ)) {
 		EXTENSION('yaz', 'php_yaz.c');
 		AC_DEFINE('HAVE_YAZ', 1);
 	} else {
