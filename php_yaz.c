@@ -33,9 +33,9 @@
 #include <yaz/yaz-version.h>
 
 #ifndef YAZ_VERSIONL
-#error YAZ version 3.0 or later must be used.
-#elif YAZ_VERSIONL < 0x030000
-#error YAZ version 3.0 or later must be used.
+#error YAZ version 4.0 or later must be used.
+#elif YAZ_VERSIONL < 0x040000
+#error YAZ version 4.0 or later must be used.
 #endif
 
 #ifdef PHP_WIN32
