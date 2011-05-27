@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.6.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+ <name>yaz</name>
+ <channel>pecl.php.net</channel>
+ <summary>Z39.50/SRU client</summary>
+ <description>This extension implements a Z39.50/SRU client for PHP using the YAZ toolkit and the ZOOM framework.
+
+Find more information at:
+  http://www.indexdata.dk/phpyaz/
+  http://www.indexdata.dk/yaz/</description>
+ <lead>
+  <name>Adam Dickmeiss</name>
+  <user>dickmeiss</user>
+  <email>adam@indexdata.dk</email>
+  <active>yes</active>
+ </lead>
+ <date>2008-02-20</date>
+ <time>11:13:01</time>
+ <version>
+  <release>1.0.14</release>
+  <api>1.0.14</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://www.php.net/license">PHP</license>
+ <notes>Allow sru_verson to be set via yaz_connect. Fixed bad memory reference in yaz_es_result</notes>
+ <contents>
+  <dir name="/">
+   <file md5sum="257deec03eff2f160e8f470c65d4350f" name="config.m4" role="src" />
+   <file md5sum="3667a9cc522e80e3eecbccdd71cf030e" name="config.w32" role="src" />
+   <file md5sum="e72e1e9502dfb12e3e76bdfc34aee0eb" name="CREDITS" role="doc" />
+   <file md5sum="aabcac04669f8bcbaf7878786a809014" name="php_yaz.c" role="src" />
+   <file md5sum="1fc522619802585e0ceab031c85b4457" name="php_yaz.h" role="src" />
+   <file md5sum="1b6e2fdc653b4a58cd49b414edc64e39" name="README" role="doc" />
+   <file md5sum="edd64c04d5102d4a3cf340c23e7c0a76" name="yaz.dsp" role="src" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.3</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>yaz</providesextension>
+ <extsrcrelease>
+  <configureoption default="autodetect" name="with-yaz" prompt="path to YAZ installation?" />
+ </extsrcrelease>
+</package>
