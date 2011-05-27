@@ -1755,7 +1755,7 @@ PHP_FUNCTION(yaz_scan_result)
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p && p->zoom_scan) {
 		int pos = 0;
-		int occ, len;
+		size_t occ, len;
 		int size = ZOOM_scanset_size(p->zoom_scan);
 		
 		for (pos = 0; pos < size; pos++) {
