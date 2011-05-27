@@ -6,26 +6,26 @@
  <description>This extension implements a Z39.50/SRU client for PHP using the YAZ toolkit and the ZOOM framework.
 
 Find more information at:
-  http://www.indexdata.dk/phpyaz/
-  http://www.indexdata.dk/yaz/</description>
+  http://www.indexdata.com/phpyaz
+  http://www.indexdata.com/yaz</description>
  <lead>
   <name>Adam Dickmeiss</name>
   <user>dickmeiss</user>
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2008-02-20</date>
- <time>11:13:01</time>
+ <date>2011-05-27</date>
+ <time>11:57:01</time>
  <version>
-  <release>1.0.14</release>
-  <api>1.0.14</api>
+  <release>1.1.0</release>
+  <api>1.1.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
- <notes>Allow sru_verson to be set via yaz_connect. Fixed bad memory reference in yaz_es_result</notes>
+ <notes>Update for YAZ version 4</notes>
  <contents>
   <dir name="/">
    <file md5sum="257deec03eff2f160e8f470c65d4350f" name="config.m4" role="src" />
