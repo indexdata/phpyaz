@@ -33,9 +33,9 @@
 #include <yaz/yaz-version.h>
 
 #ifndef YAZ_VERSIONL
-#error YAZ version 4.0 or later must be used.
-#elif YAZ_VERSIONL < 0x040000
-#error YAZ version 4.0 or later must be used.
+#error YAZ version 3.0 or later must be used.
+#elif YAZ_VERSIONL < 0x030000
+#error YAZ version 3.0 or later must be used.
 #endif
 
 #ifdef PHP_WIN32
@@ -49,6 +49,10 @@
 #include <yaz/yaz-ccl.h>
 #include <yaz/oid_db.h>
 #include <yaz/zoom.h>
+
+#ifndef ODR_INT_PRINTF
+#define ODR_INT_PRINTF %d
+#endif
 
 #define MAX_ASSOC 200
 
@@ -1072,7 +1076,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 		
 		if (e->tagValue->which == Z_StringOrNumeric_numeric)
 		{
-			sprintf(tagstr, "%d", *e->tagValue->u.numeric);
+			sprintf(tagstr, ODR_INT_PRINTF, *e->tagValue->u.numeric);
 			tag = tagstr;
 		}
 		else if (e->tagValue->which == Z_StringOrNumeric_string)
@@ -1115,7 +1119,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			const char *tag = 0;
 			if (e->tagValue->which == Z_StringOrNumeric_numeric)
 			{
-				sprintf(tagstr, "%d", *e->tagValue->u.numeric);
+				sprintf(tagstr, ODR_INT_PRINTF, *e->tagValue->u.numeric);
 				tag = tagstr;
 			}
 			else if (e->tagValue->which == Z_StringOrNumeric_string)
@@ -1142,7 +1146,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 					const char *tag = 0;
 					if (e->tagValue->which == Z_StringOrNumeric_numeric)
 					{
-						sprintf(tagstr, "%d", *e->tagValue->u.numeric);
+						sprintf(tagstr, ODR_INT_PRINTF, *e->tagValue->u.numeric);
 						tag = tagstr;
 					}
 					else if (e->tagValue->which == Z_StringOrNumeric_string)
@@ -1257,7 +1261,7 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 				memcpy(tag + taglen, e->tagValue->u.string, len);
 				tag[taglen+len] = '\0';
 			} else if (e->tagValue->which == Z_StringOrNumeric_numeric) {
-				sprintf(tag + taglen, "%d", *e->tagValue->u.numeric);
+				sprintf(tag + taglen, ODR_INT_PRINTF, *e->tagValue->u.numeric);
 			}
 			taglen = strlen(tag);
 			strcpy(tag + taglen, ")");
@@ -1755,7 +1759,12 @@ PHP_FUNCTION(yaz_scan_result)
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p && p->zoom_scan) {
 		int pos = 0;
+		/* ZOOM_scanset_term changed from YAZ 3 to YAZ 4 */
+#if YAZ_VERSIONL >= 0x040000
 		size_t occ, len;
+#else
+		int occ, len;
+#endif
 		int size = ZOOM_scanset_size(p->zoom_scan);
 		
 		for (pos = 0; pos < size; pos++) {
