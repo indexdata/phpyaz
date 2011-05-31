@@ -20,7 +20,7 @@ build-stamp: build-yaz/configure
 
 build-yaz/configure: config.m4
 	mkdir build-yaz
-	cp config.m4 debian/yaz.ini Makefile.in php_yaz.[ch] build-yaz
+	cp config.m4 debian/yaz.ini php_yaz.[ch] build-yaz
 	cd build-yaz; /usr/bin/phpize
 
 clean:
