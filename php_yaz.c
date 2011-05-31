@@ -16,8 +16,6 @@
    +----------------------------------------------------------------------+
  */
 
-/* $Id: php_yaz.c,v 1.115 2008/02/20 10:08:15 dickmeiss Exp $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -55,6 +53,11 @@
 #endif
 
 #define MAX_ASSOC 200
+
+#define GET_PARM1(a) zend_parse_parameters(1 , "z", a)
+#define GET_PARM2(a,b) zend_parse_parameters(2, "zz", a, b)
+#define GET_PARM3(a,b,c) zend_parse_parameters(3, "zzz", a, b, c)
+#define GET_PARM4(a,b,c,d) zend_parse_parameters(4, "zzzz", a, b, c, d)
 
 typedef struct Yaz_AssociationInfo *Yaz_Association;
 
@@ -313,13 +316,11 @@ PHP_FUNCTION(yaz_connect)
 	otherInfo[0] = otherInfo[1] = otherInfo[2] = 0;
 
 	if (ZEND_NUM_ARGS() == 1) {
-		if (zend_parse_parameters(1, "z", &zurl)
-			== FAILURE) {
+		if (GET_PARM1(&zurl) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2, "zz", &zurl, &user)
-			== FAILURE) {
+		if (GET_PARM2(&zurl, &user) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 		
@@ -467,7 +468,7 @@ PHP_FUNCTION(yaz_close)
 	if (ZEND_NUM_ARGS() != 1) {
 		WRONG_PARAM_COUNT;
 	}
-	if (zend_parse_parameters(1, "z", &id) == FAILURE) {
+	if (GET_PARM1(&id) == FAILURE) {
 		RETURN_FALSE;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
@@ -490,8 +491,7 @@ PHP_FUNCTION(yaz_search)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() == 3) {
-		if (zend_parse_parameters(3, "zzz", &id, &type, &query)
-			== FAILURE) {
+		if (GET_PARM3(&id, &type, &query) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else {
@@ -560,7 +560,7 @@ PHP_FUNCTION(yaz_present)
 	if (ZEND_NUM_ARGS() != 1) {
 		WRONG_PARAM_COUNT;
 	}
-	if (zend_parse_parameters(1, "z", id) == FAILURE) {
+	if (GET_PARM1(id) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -596,7 +596,7 @@ PHP_FUNCTION(yaz_wait)
 		long *val = 0;
 		long *event_bool = 0;
 		HashTable *options_ht = 0;
-		if (zend_parse_parameters(1, "z", &pval_options) == FAILURE) {
+		if (GET_PARM1(&pval_options) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 		if (Z_TYPE_PP(&pval_options) != IS_ARRAY) {
@@ -663,8 +663,7 @@ PHP_FUNCTION(yaz_errno)
 	pval *id;
 	Yaz_Association p;
 
-	if (ZEND_NUM_ARGS() != 1 || 
-		zend_parse_parameters(1, "z", &id) == FAILURE) {
+	if (ZEND_NUM_ARGS() != 1 || GET_PARM1(&id) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
@@ -683,8 +682,7 @@ PHP_FUNCTION(yaz_error)
 	pval *id;
 	Yaz_Association p;
 
-	if (ZEND_NUM_ARGS() != 1 ||
-		zend_parse_parameters(1, "z", &id) == FAILURE) {
+	if (ZEND_NUM_ARGS() != 1 ||	GET_PARM1(&id) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -711,8 +709,7 @@ PHP_FUNCTION(yaz_addinfo)
 	pval *id;
 	Yaz_Association p;
 
-	if (ZEND_NUM_ARGS() != 1 ||
-		zend_parse_parameters(ZEND_NUM_ARGS(), "z", &id) == FAILURE) {
+	if (ZEND_NUM_ARGS() != 1 || GET_PARM1(&id) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -736,11 +733,11 @@ PHP_FUNCTION(yaz_hits)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() == 1) {
-		if (zend_parse_parameters(1, "z", &id) == FAILURE) {
+		if (GET_PARM1(&id) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2, "zz", &id, &searchresult) == FAILURE) {
+		if (GET_PARM2(&id, &searchresult) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 		if (array_init(searchresult) == FAILURE) {
@@ -1350,8 +1347,7 @@ PHP_FUNCTION(yaz_record)
 	if (ZEND_NUM_ARGS() != 3) {
 		WRONG_PARAM_COUNT;
 	}
-	if (zend_parse_parameters(3, "zzz", &pval_id, &pval_pos, &pval_type)
-		== FAILURE) {
+	if (GET_PARM3( &pval_id, &pval_pos, &pval_type)	== FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1414,7 +1410,7 @@ PHP_FUNCTION(yaz_syntax)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_syntax) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_syntax) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1433,7 +1429,7 @@ PHP_FUNCTION(yaz_element)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_element) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_element) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1453,7 +1449,7 @@ PHP_FUNCTION(yaz_schema)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_element) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_element) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1472,7 +1468,7 @@ PHP_FUNCTION(yaz_set_option)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2, "zz", &pval_id, &pval_ar) == FAILURE) {
+		if (GET_PARM2(&pval_id, &pval_ar) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 		if (Z_TYPE_PP(&pval_ar) != IS_ARRAY) {
@@ -1504,8 +1500,7 @@ PHP_FUNCTION(yaz_set_option)
 			release_assoc (p);
 		}
 	} else if (ZEND_NUM_ARGS() == 3) {
-		if (zend_parse_parameters(3, "zzz", &pval_id, &pval_name, &pval_val)
-			== FAILURE) {
+		if (GET_PARM3( &pval_id, &pval_name, &pval_val) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 		get_assoc (INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
@@ -1530,7 +1525,7 @@ PHP_FUNCTION(yaz_get_option)
 	if (ZEND_NUM_ARGS() != 2) {
 		WRONG_PARAM_COUNT;
 	}
-	if (zend_parse_parameters(2, "zz", &pval_id, &pval_name) == FAILURE) {
+	if (GET_PARM2(&pval_id, &pval_name) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1562,8 +1557,7 @@ PHP_FUNCTION(yaz_range)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 3 ||
-		zend_parse_parameters(3, "zzz", &pval_id, &pval_start, &pval_number)
-		== FAILURE) {
+		GET_PARM3( &pval_id, &pval_start, &pval_number)	== FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1584,7 +1578,7 @@ PHP_FUNCTION(yaz_sort)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_criteria) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_criteria) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1614,7 +1608,7 @@ PHP_FUNCTION(yaz_itemorder)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_package) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_package) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 	if (Z_TYPE_PP(&pval_package) != IS_ARRAY) {
@@ -1646,8 +1640,7 @@ PHP_FUNCTION(yaz_es)
 	Yaz_Association p;
 	
 	if (ZEND_NUM_ARGS() != 3 ||
-		zend_parse_parameters(3, "zzz", &pval_id, &pval_type, 
-							  &pval_package) == FAILURE) {
+		GET_PARM3( &pval_id, &pval_type, &pval_package) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 	if (Z_TYPE_PP(&pval_type) != IS_STRING) {
@@ -1685,13 +1678,12 @@ PHP_FUNCTION(yaz_scan)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() == 3) {
-		if (zend_parse_parameters(3, "zzz", &pval_id, &pval_type, &pval_query)
-			== FAILURE) {
+		if (GET_PARM3( &pval_id, &pval_type, &pval_query) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else if (ZEND_NUM_ARGS() == 4) {
-		if (zend_parse_parameters(4, "zzzz", &pval_id, &pval_type,
-								  &pval_query, &pval_flags) == FAILURE) {
+		if (GET_PARM4(&pval_id, &pval_type, &pval_query, &pval_flags)
+			== FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 		if (Z_TYPE_PP(&pval_flags) != IS_ARRAY) {
@@ -1727,8 +1719,7 @@ PHP_FUNCTION(yaz_es_result)
 	pval *pval_id;
 	Yaz_Association p;
 
-	if (ZEND_NUM_ARGS() != 1 ||
-		zend_parse_parameters(1, "z", &pval_id) == FAILURE) {
+	if (ZEND_NUM_ARGS() != 1 ||	GET_PARM1(&pval_id) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1760,11 +1751,11 @@ PHP_FUNCTION(yaz_scan_result)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2, "zz", &pval_id, &pval_opt) == FAILURE) {
+		if (GET_PARM2(&pval_id, &pval_opt) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else if (ZEND_NUM_ARGS() == 1) {
-		if (zend_parse_parameters(1, "z", &pval_id) == FAILURE) {
+		if (GET_PARM1(&pval_id) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else {
@@ -1847,7 +1838,7 @@ PHP_FUNCTION(yaz_ccl_conf)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_package) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_package) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1893,8 +1884,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 	pval *pval_id, *pval_query, *pval_res = 0;
 	Yaz_Association p;
 
-	if (ZEND_NUM_ARGS() != 3 ||
-		zend_parse_parameters(3, "zzz", &pval_id, &pval_query, &pval_res)
+	if (ZEND_NUM_ARGS() != 3 || GET_PARM3( &pval_id, &pval_query, &pval_res)
 		== FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
@@ -1978,7 +1968,7 @@ PHP_FUNCTION(yaz_database)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
-		zend_parse_parameters(2, "zz", &pval_id, &pval_database) == FAILURE) {
+		GET_PARM2(&pval_id, &pval_database) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
