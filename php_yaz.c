@@ -54,10 +54,10 @@
 
 #define MAX_ASSOC 200
 
-#define GET_PARM1(a) zend_parse_parameters(1 , "z", a)
-#define GET_PARM2(a,b) zend_parse_parameters(2, "zz", a, b)
-#define GET_PARM3(a,b,c) zend_parse_parameters(3, "zzz", a, b, c)
-#define GET_PARM4(a,b,c,d) zend_parse_parameters(4, "zzzz", a, b, c, d)
+#define GET_PARM1(a) zend_parse_parameters(1 TSRMLS_CC , "z", a)
+#define GET_PARM2(a,b) zend_parse_parameters(2 TSRMLS_CC, "zz", a, b)
+#define GET_PARM3(a,b,c) zend_parse_parameters(3 TSRMLS_CC, "zzz", a, b, c)
+#define GET_PARM4(a,b,c,d) zend_parse_parameters(4 TSRMLS_CC, "zzzz", a, b, c, d)
 
 typedef struct Yaz_AssociationInfo *Yaz_Association;
 
@@ -560,7 +560,7 @@ PHP_FUNCTION(yaz_present)
 	if (ZEND_NUM_ARGS() != 1) {
 		WRONG_PARAM_COUNT;
 	}
-	if (GET_PARM1(id) == FAILURE) {
+	if (GET_PARM1(&id) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
@@ -1191,12 +1191,12 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 		array_init(zval_element);
 		
 		if (e->tagType)
-			add_assoc_long(zval_element, "tagType", *e->tagType);
+			add_assoc_long(zval_element, "tagType", (long) *e->tagType);
 
 		if (e->tagValue->which == Z_StringOrNumeric_string)
 			add_assoc_string(zval_element, "tag", e->tagValue->u.string, 1);
 		else if (e->tagValue->which == Z_StringOrNumeric_numeric)
-			add_assoc_long(zval_element, "tag", *e->tagValue->u.numeric);
+			add_assoc_long(zval_element, "tag", (long) *e->tagValue->u.numeric);
 
 		switch (e->content->which) {
 		case Z_ElementData_string:
@@ -1207,7 +1207,7 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 			}
 			break;
 		case Z_ElementData_numeric:
-			add_assoc_long(zval_element, "content",*e->content->u.numeric);
+			add_assoc_long(zval_element, "content", (long) *e->content->u.numeric);
 			break;
 		case Z_ElementData_trueOrFalse:
 			add_assoc_bool(zval_element, "content",*e->content->u.trueOrFalse);
@@ -1248,14 +1248,14 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 		}
 		*tag = '\0';
 		for (i = 0; i <= level; i++) {
-			int tag_type = 3;
+			long tag_type = 3;
 			e = grs[i]->elements[eno[i]];
 
 			if (e->tagType) {
-				tag_type = *e->tagType;
+				tag_type = (long) *e->tagType;
 			}
 			taglen = strlen(tag);
-			sprintf(tag + taglen, "(%d,", tag_type);
+			sprintf(tag + taglen, "(%ld,", tag_type);
 			taglen = strlen(tag);
 
 			if (e->tagValue->which == Z_StringOrNumeric_string) {
@@ -1285,7 +1285,7 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 				}
 				break;
 			case Z_ElementData_numeric:
-				add_next_index_long(my_zval, *e->content->u.numeric);
+				add_next_index_long(my_zval, (long) *e->content->u.numeric);
 				break;
 			case Z_ElementData_trueOrFalse:
 				add_next_index_long(my_zval, *e->content->u.trueOrFalse);
