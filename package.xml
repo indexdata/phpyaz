@@ -14,18 +14,18 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2011-05-27</date>
- <time>11:57:01</time>
+ <date>2011-05-31</date>
+ <time>11:08:01</time>
  <version>
-  <release>1.1.0</release>
-  <api>1.1.0</api>
+  <release>1.1.1</release>
+  <api>1.1.1</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
- <notes>Update for YAZ version 4</notes>
+ <notes>Avoid deprecated Zend API. Fixes for Windows compilation</notes>
  <contents>
   <dir name="/">
    <file md5sum="257deec03eff2f160e8f470c65d4350f" name="config.m4" role="src" />
