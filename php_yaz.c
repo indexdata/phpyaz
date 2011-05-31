@@ -77,9 +77,9 @@ struct Yaz_AssociationInfo {
 
 static Yaz_Association yaz_association_mk()
 {
-	Yaz_Association p = xmalloc (sizeof(*p));
+	Yaz_Association p = xmalloc(sizeof(*p));
 
-	p->zoom_conn = ZOOM_connection_create (0);
+	p->zoom_conn = ZOOM_connection_create(0);
 	p->zoom_set = 0;
 	p->zoom_scan = 0;
 	p->zoom_package = 0;
@@ -94,7 +94,7 @@ static Yaz_Association yaz_association_mk()
 	return p;
 }
 
-static void yaz_association_destroy (Yaz_Association p)
+static void yaz_association_destroy(Yaz_Association p)
 {
 	if (!p) {
 		return;
@@ -183,7 +183,7 @@ static void get_assoc(INTERNAL_FUNCTION_PARAMETERS, pval *id, Yaz_Association *a
 	
 	*assocp = 0;
 #ifdef ZTS
-	tsrm_mutex_lock (yaz_mutex);
+	tsrm_mutex_lock(yaz_mutex);
 #endif
 
 	ZEND_FETCH_RESOURCE(as, Yaz_Association *, &id, -1, "YAZ link", le_link);
@@ -192,7 +192,7 @@ static void get_assoc(INTERNAL_FUNCTION_PARAMETERS, pval *id, Yaz_Association *a
 		*assocp = *as;
 	} else {
 #ifdef ZTS
-		tsrm_mutex_unlock (yaz_mutex);
+		tsrm_mutex_unlock(yaz_mutex);
 #endif
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid YAZ handle");
 	}
@@ -276,7 +276,7 @@ static void option_set_int(Yaz_Association as, const char *name, int v)
 	if (as) {
 		char s[30];
 
-		sprintf (s, "%d", v);
+		sprintf(s, "%d", v);
 		ZOOM_connection_option_set(as->zoom_conn, name, s);
 	}
 }
@@ -404,7 +404,7 @@ PHP_FUNCTION(yaz_connect)
 			if (i == -1) {
 				char msg[80];
 #ifdef ZTS
-				tsrm_mutex_unlock (yaz_mutex);
+				tsrm_mutex_unlock(yaz_mutex);
 #endif
 				sprintf(msg, "No YAZ handles available. max_links=%d", 
 						max_links);
@@ -416,7 +416,7 @@ PHP_FUNCTION(yaz_connect)
 				yaz_association_destroy(shared_associations[i]);
 			}
 		}
-		shared_associations[i] = as = yaz_association_mk ();
+		shared_associations[i] = as = yaz_association_mk();
 
 		option_set(as, "proxy", proxy_str);
 		option_set(as, "sru", sru_str);
@@ -450,7 +450,7 @@ PHP_FUNCTION(yaz_connect)
 		as->zoom_set = 0;
 	}
 #ifdef ZTS
-	tsrm_mutex_unlock (yaz_mutex);
+	tsrm_mutex_unlock(yaz_mutex);
 #endif
 
 	ZEND_REGISTER_RESOURCE(return_value, &shared_associations[i], le_link);
@@ -534,7 +534,7 @@ PHP_FUNCTION(yaz_search)
 			if (p->sort_criteria) {
 				ZOOM_query_sortby(q, p->sort_criteria);
 			}
-			xfree (p->sort_criteria);
+			xfree(p->sort_criteria);
 			p->sort_criteria = 0;
 			p->zoom_set = ZOOM_connection_search(p->zoom_conn, q);
 			RETVAL_TRUE;
@@ -649,7 +649,7 @@ PHP_FUNCTION(yaz_wait)
 	}
 
 	if (no) {
-		while (ZOOM_event (no, conn_ar))
+		while (ZOOM_event(no, conn_ar))
 			;
 	}
 	RETURN_TRUE;
@@ -828,8 +828,8 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 	int length_starting;
 	int length_implementation;
 	int max_elements = 256;
-	Z_GenericRecord *r = odr_malloc (o, sizeof(*r));
-	r->elements = odr_malloc (o, sizeof(*r->elements) * max_elements);
+	Z_GenericRecord *r = odr_malloc(o, sizeof(*r));
+	r->elements = odr_malloc(o, sizeof(*r->elements) * max_elements);
 	r->num_elements = 0;
 	
 	record_length = atoi_n(buf, 5);
@@ -859,7 +859,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		tag->tagOccurrence = 0;
 		tag->metaData = 0;
 		tag->appliedVariant = 0;
-		tag->tagValue = odr_malloc (o, sizeof(*tag->tagValue));
+		tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 		tag->tagValue->which = Z_StringOrNumeric_string;
 		tag->tagValue->u.string = odr_strdup(o, "leader");
 		
@@ -894,7 +894,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		tag->tagOccurrence = 0;
 		tag->metaData = 0;
 		tag->appliedVariant = 0;
-		tag->tagValue = odr_malloc (o, sizeof(*tag->tagValue));
+		tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 		tag->tagValue->which = Z_StringOrNumeric_string;
 		tag->tagValue->u.string = odr_strdup(o, tag_str);
 		
@@ -927,7 +927,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 			if (buf[i + indicator_length] != ISO2709_IDFS) {
 				identifier_flag = 0;
 			}
-		} else if (!memcmp (tag_str, "00", 2)) {
+		} else if (!memcmp(tag_str, "00", 2)) {
 			identifier_flag = 0;
 		}
 		
@@ -948,7 +948,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 				int i0;
 				/* prepare tag */
 				Z_TaggedElement *parent_tag = tag;
-				Z_TaggedElement *tag = odr_malloc (o, sizeof(*tag));
+				Z_TaggedElement *tag = odr_malloc(o, sizeof(*tag));
 				
 				if (parent_tag->content->u.subtree->num_elements < 256) {
 					parent_tag->content->u.subtree->elements[
@@ -960,7 +960,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 				tag->tagOccurrence = 0;
 				tag->metaData = 0;
 				tag->appliedVariant = 0;
-				tag->tagValue = odr_malloc (o, sizeof(*tag->tagValue));
+				tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 				tag->tagValue->which = Z_StringOrNumeric_string;
 				
 				/* sub field */
@@ -1398,7 +1398,7 @@ PHP_FUNCTION(yaz_record)
 			}
 		}
 	}
-	release_assoc (p);
+	release_assoc(p);
 }
 /* }}} */
 
@@ -1497,7 +1497,7 @@ PHP_FUNCTION(yaz_set_option)
 				}
 				option_set(p, key, (*ent)->value.str.val);
 			}
-			release_assoc (p);
+			release_assoc(p);
 		}
 	} else if (ZEND_NUM_ARGS() == 3) {
 		if (GET_PARM3( &pval_id, &pval_name, &pval_val) == FAILURE) {
@@ -1595,7 +1595,7 @@ PHP_FUNCTION(yaz_sort)
 }
 /* }}} */
 
-const char *ill_array_lookup (void *handle, const char *name)
+const char *ill_array_lookup(void *handle, const char *name)
 {
 	return array_lookup_string((HashTable *) handle, name);
 }
@@ -1626,7 +1626,7 @@ PHP_FUNCTION(yaz_itemorder)
 		p->zoom_package = ZOOM_connection_package(p->zoom_conn, options);
 		ZOOM_package_send(p->zoom_package, "itemorder");
 		ZOOM_options_set_callback(options, 0, 0);
-		ZOOM_options_destroy (options);
+		ZOOM_options_destroy(options);
 	}
 	release_assoc(p);
 }
@@ -1663,7 +1663,7 @@ PHP_FUNCTION(yaz_es)
 		p->zoom_package = ZOOM_connection_package(p->zoom_conn, options);
 		ZOOM_package_send(p->zoom_package, pval_type->value.str.val);
 		ZOOM_options_set_callback(options, 0, 0);
-		ZOOM_options_destroy (options);
+		ZOOM_options_destroy(options);
 	}
 	release_assoc(p);
 }
@@ -1873,7 +1873,7 @@ PHP_FUNCTION(yaz_ccl_conf)
 			ccl_qual_fitem(p->bibset, (*ent)->value.str.val, key);
 		}
 	}
-	release_assoc (p);
+	release_assoc(p);
 }
 /* }}} */
 
@@ -2004,7 +2004,7 @@ static void yaz_close_session(Yaz_Association *as TSRMLS_DC)
 	}
 }
 
-static void yaz_close_link (zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void yaz_close_link(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	Yaz_Association *as = (Yaz_Association *) rsrc->ptr;
 	yaz_close_session(as TSRMLS_CC);
@@ -2074,7 +2074,7 @@ PHP_MINIT_FUNCTION(yaz)
 	else
 		yaz_log_init_level(0);
 
-	le_link = zend_register_list_destructors_ex (yaz_close_link, 0, "YAZ link", module_number);
+	le_link = zend_register_list_destructors_ex(yaz_close_link, 0, "YAZ link", module_number);
 
 	order_associations = 1;
 	shared_associations = xmalloc(sizeof(*shared_associations) * MAX_ASSOC);
@@ -2096,7 +2096,7 @@ PHP_MSHUTDOWN_FUNCTION(yaz)
 		shared_associations = 0;
 	}
 #ifdef ZTS
-	tsrm_mutex_free (yaz_mutex);
+	tsrm_mutex_free(yaz_mutex);
 #endif
 
 	yaz_log_init_file(0);
