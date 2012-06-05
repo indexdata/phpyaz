@@ -1,0 +1,4 @@
+DEBIAN_DIST="squeeze"
+UBUNTU_DIST="precise oneiric natty lucid"
+VERSION=1.1.1
+NAME=php5-yaz
