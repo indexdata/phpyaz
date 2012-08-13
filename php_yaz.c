@@ -1889,7 +1889,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 		WRONG_PARAM_COUNT;
 	}
 	
-	pval_destructor(pval_res);
+	zval_dtor(pval_res);
 	array_init(pval_res);
 	convert_to_string_ex(&pval_query);
 
