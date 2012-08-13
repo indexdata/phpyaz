@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.6.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>yaz</name>
  <channel>pecl.php.net</channel>
  <summary>Z39.50/SRU client</summary>
@@ -15,26 +15,28 @@ Find more information at:
   <active>yes</active>
  </lead>
  <date>2012-08-13</date>
- <time>16:27:37</time>
+ <time>16:56:05</time>
  <version>
-  <release>1.1.3</release>
-  <api>1.1.3</api>
+  <release>1.1.4</release>
+  <api>1.1.4</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
- <notes>New tar. Avoid deprecated pval_destructor</notes>
+ <notes>
+Avoid deprecated pval_destructor.
+ </notes>
  <contents>
   <dir name="/">
    <file md5sum="257deec03eff2f160e8f470c65d4350f" name="config.m4" role="src" />
-   <file md5sum="3667a9cc522e80e3eecbccdd71cf030e" name="config.w32" role="src" />
+   <file md5sum="9020c0f5e1f94ff0ab542e3d2a616067" name="config.w32" role="src" />
    <file md5sum="e72e1e9502dfb12e3e76bdfc34aee0eb" name="CREDITS" role="doc" />
-   <file md5sum="aabcac04669f8bcbaf7878786a809014" name="php_yaz.c" role="src" />
-   <file md5sum="1fc522619802585e0ceab031c85b4457" name="php_yaz.h" role="src" />
-   <file md5sum="1b6e2fdc653b4a58cd49b414edc64e39" name="README" role="doc" />
-   <file md5sum="edd64c04d5102d4a3cf340c23e7c0a76" name="yaz.dsp" role="src" />
+   <file md5sum="dab8bb8ab01aeedd867ba111371a2267" name="php_yaz.c" role="src" />
+   <file md5sum="913c4320446d97b6ec09ba0cd4870424" name="php_yaz.h" role="src" />
+   <file md5sum="39c320be2fbb20d1cfc64ca3c70c3124" name="README" role="doc" />
+   <file md5sum="515070b3eb936ecdbff971089aa290b0" name="yaz.dsp" role="src" />
   </dir>
  </contents>
  <dependencies>
