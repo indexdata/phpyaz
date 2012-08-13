@@ -14,18 +14,18 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2012-06-05</date>
- <time>07:56:11</time>
+ <date>2012-08-13</date>
+ <time>16:27:37</time>
  <version>
-  <release>1.1.2</release>
-  <api>1.1.2</api>
+  <release>1.1.3</release>
+  <api>1.1.3</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
- <notes>Updates for PHP 5.4</notes>
+ <notes>New tar. Avoid deprecated pval_destructor</notes>
  <contents>
   <dir name="/">
    <file md5sum="257deec03eff2f160e8f470c65d4350f" name="config.m4" role="src" />
