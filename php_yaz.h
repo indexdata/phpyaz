@@ -63,7 +63,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaz)
 	char *log_file;
 	char *log_mask;
 ZEND_END_MODULE_GLOBALS(yaz)
-    
+
 #ifdef ZTS
 #define YAZSG(v) TSRMG(yaz_globals_id, zend_yaz_globals *, v)
 #else

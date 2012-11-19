@@ -180,7 +180,7 @@ zend_function_entry yaz_functions [] = {
 static void get_assoc(INTERNAL_FUNCTION_PARAMETERS, zval *id, Yaz_Association *assocp)
 {
 	Yaz_Association *as = 0;
-	
+
 	*assocp = 0;
 #ifdef ZTS
 	tsrm_mutex_lock(yaz_mutex);
@@ -323,12 +323,12 @@ PHP_FUNCTION(yaz_connect)
 		if (GET_PARM2(&zurl, &user) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
-		
+
 		if (Z_TYPE_PP(&user) == IS_ARRAY) {
 			long *persistent_val;
 			long *piggyback_val;
 			HashTable *ht = Z_ARRVAL_PP(&user);
-			
+
 			sru_str = array_lookup_string(ht, "sru");
 			sru_version_str = array_lookup_string(ht, "sru_version");
 			user_str = array_lookup_string(ht, "user");
@@ -406,7 +406,7 @@ PHP_FUNCTION(yaz_connect)
 #ifdef ZTS
 				tsrm_mutex_unlock(yaz_mutex);
 #endif
-				sprintf(msg, "No YAZ handles available. max_links=%d", 
+				sprintf(msg, "No YAZ handles available. max_links=%d",
 						max_links);
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
 								 "No YAZ handles available. max_links=%ld",
@@ -543,7 +543,7 @@ PHP_FUNCTION(yaz_search)
 	}
 	else
 	{
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
 						 "Invalid query type %s", type_str);
 	}
 	release_assoc(p);
@@ -720,7 +720,7 @@ PHP_FUNCTION(yaz_addinfo)
 		return_value->value.str.len = strlen(addinfo);
 		return_value->value.str.val = estrndup(addinfo, return_value->value.str.len);
 		return_value->type = IS_STRING;
-	}		 
+	}
 	release_assoc(p);
 }
 /* }}} */
@@ -757,7 +757,7 @@ PHP_FUNCTION(yaz_hits)
 			const char *str =
 				ZOOM_resultset_option_get(p->zoom_set, "resultSetStatus");
 			if (str)
-				add_assoc_string(searchresult, "resultSetStatus", 
+				add_assoc_string(searchresult, "resultSetStatus",
 								 (char *) str, 1);
 		}
 		if (searchresult)
@@ -778,7 +778,7 @@ PHP_FUNCTION(yaz_hits)
 				MAKE_STD_ZVAL(zval_element);
 				array_init(zval_element);
 				add_next_index_zval(searchresult, zval_element);
-				
+
 				sprintf(opt_name, "searchresult.%d.id", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
@@ -789,7 +789,7 @@ PHP_FUNCTION(yaz_hits)
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
 					add_assoc_long(zval_element, "count", atoi(opt_value));
-				
+
 				sprintf(opt_name, "searchresult.%d.subquery.term", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
@@ -831,7 +831,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 	Z_GenericRecord *r = odr_malloc(o, sizeof(*r));
 	r->elements = odr_malloc(o, sizeof(*r->elements) * max_elements);
 	r->num_elements = 0;
-	
+
 	record_length = atoi_n(buf, 5);
 	if (record_length < 25) {
 		return 0;
@@ -839,11 +839,11 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 	indicator_length = atoi_n(buf + 10, 1);
 	identifier_length = atoi_n(buf + 11, 1);
 	base_address = atoi_n(buf + 12, 5);
-	
+
 	length_data_entry = atoi_n(buf + 20, 1);
 	length_starting = atoi_n(buf + 21, 1);
 	length_implementation = atoi_n(buf + 22, 1);
-	
+
 	for (entry_p = 24; buf[entry_p] != ISO2709_FS; ) {
 		entry_p += 3 + length_data_entry + length_starting;
 		if (entry_p >= record_length) {
@@ -862,7 +862,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 		tag->tagValue->which = Z_StringOrNumeric_string;
 		tag->tagValue->u.string = odr_strdup(o, "leader");
-		
+
 		tag->content = odr_malloc(o, sizeof(*tag->content));
 		tag->content->which = Z_ElementData_string;
 		tag->content->u.string = odr_strdupn(o, buf, 24);
@@ -876,14 +876,14 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		int i;
 		char tag_str[4];
 		int identifier_flag = 1;
-		
+
 		memcpy(tag_str, buf+entry_p, 3);
 		entry_p += 3;
 		tag_str[3] = '\0';
-		
+
 		if ((r->num_elements + 1) >= max_elements) {
 			Z_TaggedElement **tmp = r->elements;
-			
+
 			/* double array space, throw away old buffer (nibble memory) */
 			r->elements = odr_malloc(o, sizeof(*r->elements) * (max_elements *= 2));
 			memcpy(r->elements, tmp, r->num_elements * sizeof(*tmp));
@@ -897,16 +897,16 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 		tag->tagValue->which = Z_StringOrNumeric_string;
 		tag->tagValue->u.string = odr_strdup(o, tag_str);
-		
+
 		tag->content = odr_malloc(o, sizeof(*tag->content));
 		tag->content->which = Z_ElementData_subtree;
-		
+
 		tag->content->u.subtree = odr_malloc(o, sizeof(*tag->content->u.subtree));
 		tag->content->u.subtree->elements = odr_malloc(o, sizeof(*r->elements));
 		tag->content->u.subtree->num_elements = 1;
-		
+
 		tag = tag->content->u.subtree->elements[0] = odr_malloc(o, sizeof(**tag->content->u.subtree->elements));
-		
+
 		tag->tagType = odr_malloc(o, sizeof(*tag->tagType));
 		*tag->tagType = 3;
 		tag->tagOccurrence = 0;
@@ -915,7 +915,7 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 		tag->tagValue->which = Z_StringOrNumeric_string;
 		tag->content = odr_malloc(o, sizeof(*tag->content));
-		
+
 		data_length = atoi_n(buf + entry_p, length_data_entry);
 		entry_p += length_data_entry;
 		data_offset = atoi_n(buf + entry_p, length_starting);
@@ -930,31 +930,31 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 		} else if (!memcmp(tag_str, "00", 2)) {
 			identifier_flag = 0;
 		}
-		
+
 		if (identifier_flag && indicator_length) {
 			/* indicator */
 			tag->tagValue->u.string = odr_malloc(o, indicator_length + 1);
 			memcpy(tag->tagValue->u.string, buf + i, indicator_length);
 			tag->tagValue->u.string[indicator_length] = '\0';
 			i += indicator_length;
-			
+
 			tag->content->which = Z_ElementData_subtree;
 
 			tag->content->u.subtree = odr_malloc(o, sizeof(*tag->content->u.subtree));
 			tag->content->u.subtree->elements = odr_malloc(o, 256 * sizeof(*r->elements));
 			tag->content->u.subtree->num_elements = 0;
-			
+
 			while (buf[i] != ISO2709_RS && buf[i] != ISO2709_FS && i < end_offset) {
 				int i0;
 				/* prepare tag */
 				Z_TaggedElement *parent_tag = tag;
 				Z_TaggedElement *tag = odr_malloc(o, sizeof(*tag));
-				
+
 				if (parent_tag->content->u.subtree->num_elements < 256) {
 					parent_tag->content->u.subtree->elements[
 					parent_tag->content->u.subtree->num_elements++] = tag;
 				}
-								
+
 				tag->tagType = odr_malloc(o, sizeof(*tag->tagType));
 				*tag->tagType = 3;
 				tag->tagOccurrence = 0;
@@ -962,34 +962,34 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 				tag->appliedVariant = 0;
 				tag->tagValue = odr_malloc(o, sizeof(*tag->tagValue));
 				tag->tagValue->which = Z_StringOrNumeric_string;
-				
+
 				/* sub field */
 				tag->tagValue->u.string = odr_malloc(o, identifier_length);
 				memcpy(tag->tagValue->u.string, buf + i + 1, identifier_length - 1);
 				tag->tagValue->u.string[identifier_length - 1] = '\0';
 				i += identifier_length;
-				
+
 				/* data ... */
 				tag->content = odr_malloc(o, sizeof(*tag->content));
 				tag->content->which = Z_ElementData_string;
-				
+
 				i0 = i;
-				while (	buf[i] != ISO2709_RS && 
-						buf[i] != ISO2709_IDFS && 
+				while (	buf[i] != ISO2709_RS &&
+						buf[i] != ISO2709_IDFS &&
 						buf[i] != ISO2709_FS && i < end_offset) {
 					i++;
 				}
-								
+
 				tag->content->u.string = odr_malloc(o, i - i0 + 1);
 				memcpy(tag->content->u.string, buf + i0, i - i0);
 				tag->content->u.string[i - i0] = '\0';
 			}
 		} else {
 			int i0 = i;
-			
+
 			tag->tagValue->u.string = "@";
 			tag->content->which = Z_ElementData_string;
-			
+
 			while (buf[i] != ISO2709_RS && buf[i] != ISO2709_FS && i < end_offset) {
 				i++;
 			}
@@ -1076,7 +1076,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 		zval *zval_list;
 		Z_TaggedElement *e = p->elements[i];
 		char tagstr[32], *tag = 0;
-		
+
 		if (e->tagValue->which == Z_StringOrNumeric_numeric)
 		{
 			sprintf(tagstr, ODR_INT_PRINTF, *e->tagValue->u.numeric);
@@ -1098,7 +1098,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			MAKE_STD_ZVAL(zval_list);
 			array_init(zval_list);
 			add_assoc_zval(return_value, tag, zval_list);
-			
+
 			tl = nmem_malloc(nmem, sizeof(*tl));
 			tl->tag = nmem_strdup(nmem, tag);
 			tl->zval_list = zval_list;
@@ -1136,11 +1136,11 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 				{
 					char ind_idx[5];
 					char ind_val[2];
-					
+
 					sprintf(ind_idx, "ind%d", i+1);
 					ind_val[0] = tag[i];
 					ind_val[1] = '\0';
-					
+
 					add_assoc_string(zval_element, ind_idx, ind_val, 1);
 				}
 				for (i = 0; i<sub->num_elements; i++)
@@ -1154,11 +1154,11 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 					}
 					else if (e->tagValue->which == Z_StringOrNumeric_string)
 						tag = e->tagValue->u.string, zval_element;
-					
+
 					if (tag && e->content->which == Z_ElementData_string)
 					{
 						const char *v = cvt_string(e->content->u.string, cvt);
-						add_assoc_string(zval_element, (char*) tag, (char*) v, 
+						add_assoc_string(zval_element, (char*) tag, (char*) v,
 										 1);
 					}
 				}
@@ -1178,18 +1178,18 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 							   struct cvt_handle *cvt)
 {
 	int i;
-	
+
 	array_init(return_value);
-	
+
 	for (i = 0; i<p->num_elements; i++)
 	{
 		zval *zval_element;
 		zval *zval_sub;
 		Z_TaggedElement *e = p->elements[i];
-		
+
 		MAKE_STD_ZVAL(zval_element);
 		array_init(zval_element);
-		
+
 		if (e->tagType)
 			add_assoc_long(zval_element, "tagType", (long) *e->tagType);
 
@@ -1273,7 +1273,7 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 		ALLOC_ZVAL(my_zval);
 		array_init(my_zval);
 		INIT_PZVAL(my_zval);
-		
+
 		add_next_index_string(my_zval, tag, 1);
 
 		switch (e->content->which) {
@@ -1316,7 +1316,7 @@ static void ext_grs1(zval *return_value, char type_args[][60],
 			cvt = cvt_open(type_args[3], type_args[2]);
 		else
 			cvt = cvt_open(0, 0);
-		
+
 		if (ext->which == Z_External_grs1) {
 			retval_array1_grs1(return_value, ext->u.grs1, cvt);
 		} else if (ext->which == Z_External_octet) {
@@ -1372,7 +1372,7 @@ PHP_FUNCTION(yaz_record)
 			type = "render";
 		}
 		if (r) {
-			if (!strcmp(type_args[0], "array") || 
+			if (!strcmp(type_args[0], "array") ||
 				!strcmp(type_args[0], "array1"))
 			{
 				ext_grs1(return_value, type_args, r, retval_array1_grs1);
@@ -1391,7 +1391,7 @@ PHP_FUNCTION(yaz_record)
 				}
 				else
 				{
-					php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+					php_error_docref(NULL TSRMLS_CC, E_WARNING,
 									 "Bad yaz_record type %s - or unable "
 									 "to return record with type given", type);
 				}
@@ -1479,7 +1479,7 @@ PHP_FUNCTION(yaz_set_option)
 			HashPosition pos;
 			HashTable *ht;
 			zval **ent;
-			
+
 			ht = Z_ARRVAL_PP(&pval_ar);
 			for(zend_hash_internal_pointer_reset_ex(ht, &pos);
 				zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
@@ -1507,7 +1507,7 @@ PHP_FUNCTION(yaz_set_option)
 		convert_to_string_ex(&pval_name);
 		convert_to_string_ex(&pval_val);
 		option_set(p, pval_name->value.str.val, pval_val->value.str.val);
-		
+
 		release_assoc(p);
 	} else {
 		WRONG_PARAM_COUNT;
@@ -1555,6 +1555,7 @@ PHP_FUNCTION(yaz_range)
 {
 	zval *pval_id, *pval_start, *pval_number;
 	Yaz_Association p;
+	int start;
 
 	if (ZEND_NUM_ARGS() != 3 ||
 		GET_PARM3( &pval_id, &pval_start, &pval_number)	== FAILURE) {
@@ -1564,7 +1565,9 @@ PHP_FUNCTION(yaz_range)
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	convert_to_long_ex(&pval_start);
 	convert_to_long_ex(&pval_number);
-	option_set_int(p, "start", pval_start->value.lval - 1);
+	start = pval_start->value.lval;
+	count = pval_number->value.lval;
+	option_set_int(p, "start", start > 0 ? start - 1 : 0);
 	option_set_int(p, "count", pval_number->value.lval);
 	release_assoc(p);
 }
@@ -1619,7 +1622,7 @@ PHP_FUNCTION(yaz_itemorder)
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
 		ZOOM_options options = ZOOM_options_create();
-		
+
 		ZOOM_options_set_callback(options,
 								  ill_array_lookup, Z_ARRVAL_PP(&pval_package));
 		ZOOM_package_destroy(p->zoom_package);
@@ -1638,7 +1641,7 @@ PHP_FUNCTION(yaz_es)
 {
 	zval *pval_id, *pval_type, *pval_package;
 	Yaz_Association p;
-	
+
 	if (ZEND_NUM_ARGS() != 3 ||
 		GET_PARM3( &pval_id, &pval_type, &pval_package) == FAILURE) {
 		WRONG_PARAM_COUNT;
@@ -1647,7 +1650,7 @@ PHP_FUNCTION(yaz_es)
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expected string parameter");
 		RETURN_FALSE;
 	}
-	
+
 	if (Z_TYPE_PP(&pval_package) != IS_ARRAY) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expected array parameter");
 		RETURN_FALSE;
@@ -1656,7 +1659,7 @@ PHP_FUNCTION(yaz_es)
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
 		ZOOM_options options = ZOOM_options_create();
-		
+
 		ZOOM_options_set_callback(options, ill_array_lookup,
 								  Z_ARRVAL_PP(&pval_package));
 		ZOOM_package_destroy(p->zoom_package);
@@ -1705,7 +1708,7 @@ PHP_FUNCTION(yaz_scan)
 		option_set(p, "number", array_lookup_string(flags_ht, "number"));
 		option_set(p, "position", array_lookup_string(flags_ht, "position"));
 		option_set(p, "stepSize", array_lookup_string(flags_ht, "stepsize"));
-		p->zoom_scan = ZOOM_connection_scan(p->zoom_conn, 
+		p->zoom_scan = ZOOM_connection_scan(p->zoom_conn,
 											Z_STRVAL_PP(&pval_query));
 	}
 	release_assoc(p);
@@ -1727,13 +1730,13 @@ PHP_FUNCTION(yaz_es_result)
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p && p->zoom_package) {
-		const char *str = ZOOM_package_option_get(p->zoom_package, 
+		const char *str = ZOOM_package_option_get(p->zoom_package,
 												  "targetReference");
-		
+
 		if (str) {
 			add_assoc_string(return_value, "targetReference", (char *) str, 1);
 		}
-		str = ZOOM_package_option_get(p->zoom_package, 
+		str = ZOOM_package_option_get(p->zoom_package,
 									  "xmlUpdateDoc");
 		if (str) {
 			add_assoc_string(return_value, "xmlUpdateDoc", (char *) str, 1);
@@ -1778,7 +1781,7 @@ PHP_FUNCTION(yaz_scan_result)
 		int occ, len;
 #endif
 		int size = ZOOM_scanset_size(p->zoom_scan);
-		
+
 		for (pos = 0; pos < size; pos++) {
 			const char *term = ZOOM_scanset_term(p->zoom_scan, pos, &occ, &len);
 			zval *my_zval;
@@ -1786,7 +1789,7 @@ PHP_FUNCTION(yaz_scan_result)
 			ALLOC_ZVAL(my_zval);
 			array_init(my_zval);
 			INIT_PZVAL(my_zval);
-			
+
 			add_next_index_string(my_zval, "term", 1);
 
 			if (term) {
@@ -1809,9 +1812,9 @@ PHP_FUNCTION(yaz_scan_result)
 
 		if (pval_opt) {
 			const char *v;
-	
+
 			add_assoc_long(pval_opt, "number", size);
-			
+
 			v = ZOOM_scanset_option_get(p->zoom_scan, "stepSize");
 			if (v) {
 				add_assoc_long(pval_opt, "stepsize", atoi(v));
@@ -1888,7 +1891,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 		== FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
-	
+
 	zval_dtor(pval_res);
 	array_init(pval_res);
 	convert_to_string_ex(&pval_query);
@@ -1906,14 +1909,14 @@ PHP_FUNCTION(yaz_ccl_parse)
 		error_code = ccl_parser_get_error(ccl_parser, &error_pos);
 		add_assoc_long(pval_res, "errorcode", error_code);
 
-		if (error_code) 
+		if (error_code)
 		{
-			add_assoc_string(pval_res, "errorstring", 
+			add_assoc_string(pval_res, "errorstring",
 							 (char *) ccl_err_msg(error_code), 1);
 			add_assoc_long(pval_res, "errorpos", error_pos);
 			RETVAL_FALSE;
-		} 
-		else 
+		}
+		else
 		{
 			WRBUF wrbuf_pqf = wrbuf_alloc();
 			ccl_stop_words_t csw = ccl_stop_words_create();
@@ -1946,7 +1949,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 				add_assoc_zval(pval_res, "stopwords", zval_stopwords);
 			}
 			ccl_pquery(wrbuf_pqf, rpn);
-			add_assoc_stringl(pval_res, "rpn", 
+			add_assoc_stringl(pval_res, "rpn",
 							  wrbuf_buf(wrbuf_pqf), wrbuf_len(wrbuf_pqf), 1);
 			wrbuf_destroy(wrbuf_pqf);
 			ccl_stop_words_destroy(csw);
@@ -2027,7 +2030,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("yaz.log_mask", NULL, PHP_INI_ALL, OnUpdateString, log_mask, zend_yaz_globals, yaz_globals)
 PHP_INI_END()
 /* }}} */
-	
+
 PHP_MINIT_FUNCTION(yaz)
 {
 	int i;
@@ -2040,7 +2043,7 @@ PHP_MINIT_FUNCTION(yaz)
 	ZEND_INIT_MODULE_GLOBALS(yaz, php_yaz_init_globals, NULL);
 
 	REGISTER_INI_ENTRIES();
-	
+
 	REGISTER_LONG_CONSTANT("ZOOM_EVENT_NONE", ZOOM_EVENT_NONE,
 						   CONST_CS|CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("ZOOM_EVENT_CONNECT", ZOOM_EVENT_CONNECT,
