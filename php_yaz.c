@@ -1337,18 +1337,23 @@ PHP_FUNCTION(yaz_record)
 
 	if (p && p->zoom_set) {
 		ZOOM_record r;
-		char type_args[4][60];  /*  0; 1=2,3  (1 is assumed charset) */
-		type_args[0][0] = 0;
-		type_args[1][0] = 0;
-		type_args[2][0] = 0;
-		type_args[3][0] = 0;
-		sscanf(type, "%59[^;];%59[^=]=%59[^,],%59[^,]", type_args[0],
-			   type_args[1], type_args[2], type_args[3]);
 		r = ZOOM_resultset_record(p->zoom_set, pos-1);
-		if (!strcmp(type_args[0], "string")) {
-			type = "render";
-		}
 		if (r) {
+			char *type_tmp = 0;
+			char type_args[4][60];  /*  0; 1=2,3  (1 is assumed charset) */
+			type_args[0][0] = 0;
+			type_args[1][0] = 0;
+			type_args[2][0] = 0;
+			type_args[3][0] = 0;
+			sscanf(type, "%59[^;];%59[^=]=%59[^,],%59[^,]", type_args[0],
+			   type_args[1], type_args[2], type_args[3]);
+
+			if (!strcmp(type_args[0], "string")) {
+				type_tmp = xstrdup(type);
+				strcpy(type_tmp, "render");
+				strcat(type_tmp, type + 6);
+				type = type_tmp;
+			}
 			if (!strcmp(type_args[0], "array") ||
 				!strcmp(type_args[0], "array1"))
 			{
@@ -1373,6 +1378,7 @@ PHP_FUNCTION(yaz_record)
 									 "to return record with type given", type);
 				}
 			}
+			xfree(type_tmp);
 		}
 	}
 	release_assoc(p);
