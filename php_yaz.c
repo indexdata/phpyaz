@@ -49,7 +49,7 @@
 #include <yaz/zoom.h>
 
 #ifndef ODR_INT_PRINTF
-#define ODR_INT_PRINTF %d
+#define ODR_INT_PRINTF "%d"
 #endif
 
 #define MAX_ASSOC 200
