@@ -1,4 +1,4 @@
 DEBIAN_DIST="wheezy squeeze"
-UBUNTU_DIST="precise oneiric natty lucid"
+UBUNTU_DIST="quantal precise oneiric lucid"
 VERSION=1.1.5
 NAME=php5-yaz
