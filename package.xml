@@ -14,11 +14,11 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2012-11-20</date>
- <time>09:52:25</time>
+ <date>2013-08-12</date>
+ <time>09:30:14</time>
  <version>
-  <release>1.1.5</release>
-  <api>1.1.5</api>
+  <release>1.1.6</release>
+  <api>1.1.6</api>
  </version>
  <stability>
   <release>stable</release>
@@ -26,8 +26,7 @@ Find more information at:
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-Avoid type conversion for ZVALs (yaz_range). Use zend_parse_parameters
-with proper types.
+Fix Bug #64773: error define in php_yaz.c.
  </notes>
  <contents>
   <dir name="/">

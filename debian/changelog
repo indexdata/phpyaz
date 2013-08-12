@@ -1,3 +1,9 @@
+php5-yaz (1.1.6-1indexdata) unstable; urgency=low
+
+  * Upstream.
+
+ -- Adam Dickmeiss <adam@indexdata.dk>  Mon, 12 Aug 2013 09:42:43 +0200
+
 php5-yaz (1.1.5-1indexdata) unstable; urgency=low
 
   * Upstream.
