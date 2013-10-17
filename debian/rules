@@ -5,8 +5,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# Force compat level five
-export DH_COMPAT=5
+export DH_COMPAT=7
 
 build: build-stamp
 build-stamp: build-yaz/configure

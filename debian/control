@@ -2,7 +2,7 @@ Source: php5-yaz
 Section: web
 Priority: optional
 Maintainer: Adam Dickmeiss <adam@indexdata.dk>
-Build-Depends: debhelper (>= 4), php5-dev, libyaz4-dev (>= 4.1.4)
+Build-Depends: debhelper (>= 4), php5-dev, libyaz5-dev (>= 5.0.0)
 Standards-Version: 3.1.1
 
 Package: php5-yaz
