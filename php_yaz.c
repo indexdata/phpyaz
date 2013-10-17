@@ -594,6 +594,9 @@ PHP_FUNCTION(yaz_wait)
 		if (event_bool && *event_bool)
 			event_mode = 1;
 	}
+	else if (ZEND_NUM_ARGS() > 1) {
+		WRONG_PARAM_COUNT;
+	}
 #ifdef ZTS
 	tsrm_mutex_lock(yaz_mutex);
 #endif
