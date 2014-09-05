@@ -45,8 +45,10 @@
 #include <yaz/marcdisp.h>
 #include <yaz/yaz-util.h>
 #include <yaz/yaz-ccl.h>
+#include <yaz/cql.h>
 #include <yaz/oid_db.h>
 #include <yaz/zoom.h>
+#include <yaz/pquery.h>
 
 #ifndef ODR_INT_PRINTF
 #define ODR_INT_PRINTF "%d"
@@ -58,6 +60,7 @@ typedef struct Yaz_AssociationInfo *Yaz_Association;
 
 struct Yaz_AssociationInfo {
 	CCL_bibset bibset;
+	cql_transform_t ct;
 	ZOOM_connection zoom_conn;
 	ZOOM_resultset zoom_set;
 	ZOOM_scanset zoom_scan;
@@ -85,6 +88,7 @@ static Yaz_Association yaz_association_mk()
 	p->order = 0;
 	p->persistent = 0;
 	p->bibset = ccl_qual_mk();
+	p->ct = cql_transform_create();
 	p->time_stamp = 0;
 	return p;
 }
@@ -95,6 +99,7 @@ static void yaz_association_destroy(Yaz_Association p)
 		return;
 	}
 
+	cql_transform_close(p->ct);
 	ZOOM_resultset_destroy(p->zoom_set);
 	ZOOM_scanset_destroy(p->zoom_scan);
 	ZOOM_package_destroy(p->zoom_package);
@@ -163,6 +168,8 @@ zend_function_entry yaz_functions [] = {
 	PHP_FE(yaz_present, NULL)
 	PHP_FE(yaz_ccl_conf, NULL)
 	PHP_FE(yaz_ccl_parse, third_argument_force_ref)
+	PHP_FE(yaz_cql_parse, third_argument_force_ref)
+	PHP_FE(yaz_cql_conf, NULL)
 	PHP_FE(yaz_database, NULL)
 	PHP_FE(yaz_sort, NULL)
 	PHP_FE(yaz_schema, NULL)
@@ -1932,6 +1939,132 @@ PHP_FUNCTION(yaz_ccl_parse)
 	release_assoc(p);
 }
 /* }}} */
+
+
+/* {{{ proto bool yaz_cql_parse(resource id, string cql, array res, bool rev)
+   Parse a CQL query */
+PHP_FUNCTION(yaz_cql_parse)
+{
+	zval *pval_id, *pval_res = 0;
+	char *query;
+	int query_len;
+	Yaz_Association p;
+	zend_bool reverse = 0;
+
+	if (ZEND_NUM_ARGS() != 4 ||
+		zend_parse_parameters(4 TSRMLS_CC, "zszb",
+							  &pval_id, &query, &query_len, &pval_res, &reverse)
+		== FAILURE) {
+		WRONG_PARAM_COUNT;
+	}
+
+	zval_dtor(pval_res);
+	array_init(pval_res);
+	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
+	if (p) {
+		if (reverse) {
+            ODR odr = odr_createmem(ODR_ENCODE);
+            YAZ_PQF_Parser pp = yaz_pqf_create();
+            Z_RPNQuery *rpn = yaz_pqf_parse(pp, odr, query);
+			WRBUF wrbuf_cql = wrbuf_alloc();
+			int r;
+			if (!rpn) {
+				add_assoc_long(pval_res, "errorcode", 0);
+				add_assoc_string(pval_res, "addinfo",
+								 (char *) "PQF syntax error", 1);
+				RETVAL_FALSE;
+			} else if ((r = cql_transform_rpn2cql_stream(p->ct, wrbuf_vp_puts,
+														 wrbuf_cql, rpn))) {
+				add_assoc_long(pval_res, "errorcode", r);
+				RETVAL_FALSE;
+			} else {
+				add_assoc_string(pval_res, "cql",
+								 (char *) wrbuf_cstr(wrbuf_cql), 1);
+				RETVAL_TRUE;
+			}
+			wrbuf_destroy(wrbuf_cql);
+			yaz_pqf_destroy(pp);
+            odr_destroy(odr);
+		} else {
+			CQL_parser cp = cql_parser_create();
+			int r = cql_parser_string(cp, query);
+			if (r) {
+				add_assoc_long(pval_res, "errorcode", 0);
+				add_assoc_string(pval_res, "addinfo",
+								 (char *) "syntax error", 1);
+				RETVAL_FALSE;
+			} else {
+				WRBUF wrbuf_addinfo = wrbuf_alloc();
+				WRBUF wrbuf_pqf = wrbuf_alloc();
+				r = cql_transform_r(p->ct, cql_parser_result(cp), wrbuf_addinfo,
+									wrbuf_vp_puts, wrbuf_pqf);
+				if (r) {
+					add_assoc_long(pval_res, "errorcode", r);
+					if (wrbuf_len(wrbuf_addinfo))
+						add_assoc_string(pval_res, "addinfo",
+										 (char *) wrbuf_cstr(wrbuf_addinfo), 1);
+					RETVAL_FALSE;
+				} else {
+					wrbuf_chop_right(wrbuf_pqf);
+					add_assoc_string(pval_res, "rpn",
+									 (char *) wrbuf_cstr(wrbuf_pqf), 1);
+					RETVAL_TRUE;
+				}
+				wrbuf_destroy(wrbuf_pqf);
+				wrbuf_destroy(wrbuf_addinfo);
+			}
+			cql_parser_destroy(cp);
+		}
+	} else {
+		RETVAL_FALSE;
+	}
+	release_assoc(p);
+}
+/* }}} */
+
+/* {{{ proto void yaz_cql_conf(resource id, array package)
+   Configure CQL package */
+PHP_FUNCTION(yaz_cql_conf)
+{
+	zval *pval_id, *pval_package;
+	Yaz_Association p;
+
+	if (ZEND_NUM_ARGS() != 2 ||
+		zend_parse_parameters(2 TSRMLS_CC, "za", &pval_id, &pval_package)
+		== FAILURE) {
+		WRONG_PARAM_COUNT;
+	}
+	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
+	if (p) {
+		HashTable *ht = Z_ARRVAL_PP(&pval_package);
+		HashPosition pos;
+		zval **ent;
+		char *key;
+
+		cql_transform_close(p->ct);
+		p->ct = cql_transform_create();
+
+		for (zend_hash_internal_pointer_reset_ex(ht, &pos);
+			zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
+			zend_hash_move_forward_ex(ht, &pos)
+		) {
+			ulong idx;
+#if PHP_API_VERSION > 20010101
+			int type = zend_hash_get_current_key_ex(ht, &key, 0, &idx, 0, &pos);
+#else
+			int type = zend_hash_get_current_key_ex(ht, &key, 0, &idx, &pos);
+#endif
+			if (type != HASH_KEY_IS_STRING || Z_TYPE_PP(ent) != IS_STRING) {
+				continue;
+			}
+
+			cql_transform_define_pattern(p->ct, key, (*ent)->value.str.val);
+		}
+	}
+	release_assoc(p);
+}
+/* }}} */
+
 
 /* {{{ proto bool yaz_database (resource id, string databases)
    Specify the databases within a session */
