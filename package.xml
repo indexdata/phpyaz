@@ -30,13 +30,14 @@ Add yaz_cql_parse + yaz_cql_conf.
  </notes>
  <contents>
   <dir name="/">
-   <file md5sum="257deec03eff2f160e8f470c65d4350f" name="config.m4" role="src" />
-   <file md5sum="9020c0f5e1f94ff0ab542e3d2a616067" name="config.w32" role="src" />
-   <file md5sum="e72e1e9502dfb12e3e76bdfc34aee0eb" name="CREDITS" role="doc" />
-   <file md5sum="dab8bb8ab01aeedd867ba111371a2267" name="php_yaz.c" role="src" />
-   <file md5sum="913c4320446d97b6ec09ba0cd4870424" name="php_yaz.h" role="src" />
-   <file md5sum="39c320be2fbb20d1cfc64ca3c70c3124" name="README" role="doc" />
-   <file md5sum="515070b3eb936ecdbff971089aa290b0" name="yaz.dsp" role="src" />
+   <file name="config.m4" role="src" />
+   <file name="config.w32" role="src" />
+   <file name="LICENSE" role="doc" />
+   <file name="CREDITS" role="doc" />
+   <file name="php_yaz.c" role="src" />
+   <file name="php_yaz.h" role="src" />
+   <file name="README" role="doc" />
+   <file name="yaz.dsp" role="src" />
   </dir>
  </contents>
  <dependencies>
