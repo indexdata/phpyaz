@@ -14,11 +14,11 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2013-08-12</date>
- <time>09:30:14</time>
+ <date>2014-10-07</date>
+ <time>16:00:00</time>
  <version>
-  <release>1.1.6</release>
-  <api>1.1.6</api>
+  <release>1.1.7</release>
+  <api>1.1.7</api>
  </version>
  <stability>
   <release>stable</release>
@@ -26,7 +26,7 @@ Find more information at:
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-Fix Bug #64773: error define in php_yaz.c.
+Add yaz_cql_parse + yaz_cql_conf.
  </notes>
  <contents>
   <dir name="/">
