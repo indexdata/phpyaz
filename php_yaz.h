@@ -6,7 +6,7 @@
 #ifndef PHP_YAZ_H
 #define PHP_YAZ_H
 
-#define PHP_YAZ_VERSION "1.1.7"
+#define PHP_YAZ_VERSION "1.1.8"
 
 #if HAVE_YAZ
 
