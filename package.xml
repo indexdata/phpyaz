@@ -38,6 +38,12 @@ Update LICENSE to Revised BSD (same as YAZ itself).
    <file name="php_yaz.h" role="src" />
    <file name="README" role="doc" />
    <file name="yaz.dsp" role="src" />
+   <dir name="tests">
+     <file name="connect.phpt" role="test"/>
+     <file name="cql.phpt" role="test"/>
+     <file name="database.phpt" role="test"/>
+     <file name="record.phpt" role="test"/>
+   </dir>
   </dir>
  </contents>
  <dependencies>
