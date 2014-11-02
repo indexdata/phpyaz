@@ -24,7 +24,7 @@ Find more information at:
   <release>stable</release>
   <api>stable</api>
  </stability>
- <license uri="http://www.php.net/license">PHP</license>
+ <license uri="http://www.indexdata.com/licences/revised-bsd">revised BSD</license>
  <notes>
 Update LICENSE to Revised BSD (same as YAZ itself).
  </notes>
