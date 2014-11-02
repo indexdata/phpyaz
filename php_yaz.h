@@ -36,8 +36,10 @@ PHP_FUNCTION(yaz_es_result);
 PHP_FUNCTION(yaz_present);
 PHP_FUNCTION(yaz_ccl_conf);
 PHP_FUNCTION(yaz_ccl_parse);
+#if YAZ_VERSIONL >= 0x050100
 PHP_FUNCTION(yaz_cql_parse);
 PHP_FUNCTION(yaz_cql_conf);
+#endif
 PHP_FUNCTION(yaz_database);
 PHP_FUNCTION(yaz_sort);
 PHP_FUNCTION(yaz_schema);

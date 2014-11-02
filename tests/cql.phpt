@@ -1,7 +1,7 @@
 --TEST--
 cql
 --SKIPIF--
-<?php if (!extension_loaded("yaz")) print "skip"; ?>
+<?php if (!extension_loaded("yaz") || !function_exists("yaz_cql_parse")) print "skip"; ?>
 --FILE--
 <?php
 $z = yaz_connect("bogus");

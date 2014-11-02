@@ -13,14 +13,15 @@
 #if HAVE_YAZ
 
 #include "ext/standard/info.h"
-#include "php_yaz.h"
 
 #include <yaz/yaz-version.h>
 
+#include "php_yaz.h"
+
 #ifndef YAZ_VERSIONL
-#error YAZ version 3.0 or later must be used.
-#elif YAZ_VERSIONL < 0x030000
-#error YAZ version 3.0 or later must be used.
+#error YAZ version 3.0.2 or later must be used.
+#elif YAZ_VERSIONL < 0x030020
+#error YAZ version 3.0.2 or later must be used.
 #endif
 
 #ifdef PHP_WIN32
@@ -37,6 +38,10 @@
 #include <yaz/zoom.h>
 #include <yaz/pquery.h>
 
+#if YAZ_VERSIONL >= 0x050100
+#include <yaz/rpn2cql.h>
+#endif
+
 #ifndef ODR_INT_PRINTF
 #define ODR_INT_PRINTF "%d"
 #endif
@@ -47,7 +52,9 @@ typedef struct Yaz_AssociationInfo *Yaz_Association;
 
 struct Yaz_AssociationInfo {
 	CCL_bibset bibset;
+#if YAZ_VERSIONL >= 0x050100
 	cql_transform_t ct;
+#endif
 	ZOOM_connection zoom_conn;
 	ZOOM_resultset zoom_set;
 	ZOOM_scanset zoom_scan;
@@ -75,7 +82,9 @@ static Yaz_Association yaz_association_mk()
 	p->order = 0;
 	p->persistent = 0;
 	p->bibset = ccl_qual_mk();
+#if YAZ_VERSIONL >= 0x050100
 	p->ct = cql_transform_create();
+#endif
 	p->time_stamp = 0;
 	return p;
 }
@@ -86,7 +95,9 @@ static void yaz_association_destroy(Yaz_Association p)
 		return;
 	}
 
+#if YAZ_VERSIONL >= 0x050100
 	cql_transform_close(p->ct);
+#endif
 	ZOOM_resultset_destroy(p->zoom_set);
 	ZOOM_scanset_destroy(p->zoom_scan);
 	ZOOM_package_destroy(p->zoom_package);
@@ -155,8 +166,10 @@ zend_function_entry yaz_functions [] = {
 	PHP_FE(yaz_present, NULL)
 	PHP_FE(yaz_ccl_conf, NULL)
 	PHP_FE(yaz_ccl_parse, third_argument_force_ref)
+#if YAZ_VERSIONL >= 0x050100
 	PHP_FE(yaz_cql_parse, third_argument_force_ref)
 	PHP_FE(yaz_cql_conf, NULL)
+#endif
 	PHP_FE(yaz_database, NULL)
 	PHP_FE(yaz_sort, NULL)
 	PHP_FE(yaz_schema, NULL)
@@ -299,7 +312,7 @@ PHP_FUNCTION(yaz_connect)
 	const char *preferredMessageSize = 0;
 	int persistent = 1;
 	int piggyback = 1;
-	Yaz_Association as;
+	Yaz_Association as = 0;
 	int max_links = YAZSG(max_links);
 
 	otherInfo[0] = otherInfo[1] = otherInfo[2] = 0;
@@ -802,7 +815,6 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 	int base_address;
 	int length_data_entry;
 	int length_starting;
-	int length_implementation;
 	int max_elements = 256;
 	Z_GenericRecord *r = odr_malloc(o, sizeof(*r));
 	r->elements = odr_malloc(o, sizeof(*r->elements) * max_elements);
@@ -818,7 +830,6 @@ static Z_GenericRecord *marc_to_grs1(const char *buf, ODR o)
 
 	length_data_entry = atoi_n(buf + 20, 1);
 	length_starting = atoi_n(buf + 21, 1);
-	length_implementation = atoi_n(buf + 22, 1);
 
 	for (entry_p = 24; buf[entry_p] != ISO2709_FS; ) {
 		entry_p += 3 + length_data_entry + length_starting;
@@ -1516,7 +1527,7 @@ PHP_FUNCTION(yaz_get_option)
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
-		const char *name_str, *v;
+		const char *v;
 		v = option_get(p, name);
 		if (!v) {
 			v = "";
@@ -1928,6 +1939,8 @@ PHP_FUNCTION(yaz_ccl_parse)
 /* }}} */
 
 
+#if YAZ_VERSIONL >= 0x050100
+
 /* {{{ proto bool yaz_cql_parse(resource id, string cql, array res, bool rev)
    Parse a CQL query */
 PHP_FUNCTION(yaz_cql_parse)
@@ -2009,6 +2022,9 @@ PHP_FUNCTION(yaz_cql_parse)
 }
 /* }}} */
 
+#endif
+
+#if YAZ_VERSIONL >= 0x050100
 /* {{{ proto void yaz_cql_conf(resource id, array package)
    Configure CQL package */
 PHP_FUNCTION(yaz_cql_conf)
@@ -2051,7 +2067,7 @@ PHP_FUNCTION(yaz_cql_conf)
 	release_assoc(p);
 }
 /* }}} */
-
+#endif
 
 /* {{{ proto bool yaz_database (resource id, string databases)
    Specify the databases within a session */
