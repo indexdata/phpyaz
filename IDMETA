@@ -1,4 +1,4 @@
-DEBIAN_DIST="wheezy squeeze"
+DEBIAN_DIST="jessie wheezy squeeze"
 UBUNTU_DIST="utopic trusty saucy precise"
 VERSION=1.1.8
 NAME=php5-yaz
