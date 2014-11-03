@@ -14,11 +14,11 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2014-11-02</date>
- <time>09:22:00</time>
+ <date>2014-11-03</date>
+ <time>13:38:00</time>
  <version>
-  <release>1.1.8</release>
-  <api>1.1.8</api>
+  <release>1.1.9</release>
+  <api>1.1.9</api>
  </version>
  <stability>
   <release>stable</release>
@@ -26,7 +26,7 @@ Find more information at:
  </stability>
  <license uri="http://www.indexdata.com/licences/revised-bsd">revised BSD</license>
  <notes>
-Update LICENSE to Revised BSD (same as YAZ itself).
+Fix compilation for older YAZ versions. Tests part of package.
  </notes>
  <contents>
   <dir name="/">
