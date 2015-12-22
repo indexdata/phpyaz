@@ -50,6 +50,16 @@
 
 typedef struct Yaz_AssociationInfo *Yaz_Association;
 
+#if PHP_API_VERSION >= 20150101
+#define ADD_ASSOC_STRING(x, y, z) add_assoc_string(x, y, z)
+#define ADD_NEXT_INDEX_STRING(x, y) add_next_index_string(x, y)
+#define ADD_NEXT_INDEX_STRINGl(x, y, z) add_next_index_stringl(x, y, z)
+#else
+#define ADD_ASSOC_STRING(x, y, z) add_assoc_string(x, y, z, 1)
+#define ADD_NEXT_INDEX_STRING(x, y) add_next_index_string(x, y, 1)
+#define ADD_NEXT_INDEX_STRINGl(x, y, z) add_next_index_stringl(x, y, z, 1)
+#endif
+
 struct Yaz_AssociationInfo {
 	CCL_bibset bibset;
 #if YAZ_VERSIONL >= 0x050100
@@ -182,14 +192,19 @@ zend_function_entry yaz_functions [] = {
 static void get_assoc(INTERNAL_FUNCTION_PARAMETERS, zval *id, Yaz_Association *assocp)
 {
 	Yaz_Association *as = 0;
+	zval *pv_res;
 
 	*assocp = 0;
 #ifdef ZTS
 	tsrm_mutex_lock(yaz_mutex);
 #endif
 
+#if PHP_API_VERSION >= 20150101
+	as = (Yaz_Association *) zend_fetch_resource(Z_RES_P(pv_res),
+												 "YAZ link", le_link);
+#else
 	ZEND_FETCH_RESOURCE(as, Yaz_Association *, &id, -1, "YAZ link", le_link);
-
+#endif
 	if (as && *as && (*as)->order == YAZSG(assoc_seq) && (*as)->in_use) {
 		*assocp = *as;
 	} else {
@@ -211,6 +226,18 @@ static void release_assoc(Yaz_Association assoc)
 
 static const char *array_lookup_string(HashTable *ht, const char *idx)
 {
+#if PHP_API_VERSION >= 20150101
+	zval *zv;
+
+	zend_string *str = zend_string_init(idx, strlen(idx), 0);
+	zv = zend_hash_find(ht, str);
+	zend_string_release(str);
+	if (zv) {
+		convert_to_string(zv);
+		if (Z_TYPE_P(zv) == IS_STRING)
+			return ZSTR_VAL(zv->value.str);
+	}
+#else
 	zval **pvalue;
 
 	if (ht && zend_hash_find(ht, (char *) idx, strlen(idx) + 1, (void **) &pvalue) == SUCCESS) {
@@ -218,11 +245,30 @@ static const char *array_lookup_string(HashTable *ht, const char *idx)
 		convert_to_string(*pvalue);
 		return (*pvalue)->value.str.val;
 	}
+#endif
 	return 0;
 }
 
-static long *array_lookup_long(HashTable *ht, const char *idx)
+static
+#if PHP_API_VERSION >= 20150101
+zend_long
+#else
+long
+#endif
+*array_lookup_long(HashTable *ht, const char *idx)
 {
+#if PHP_API_VERSION >= 20150101
+	zval *zv;
+
+	zend_string *str = zend_string_init(idx, strlen(idx), 0);
+	zv = zend_hash_find(ht, str);
+	zend_string_release(str);
+	if (zv) {
+		convert_to_long(zv);
+		if (Z_TYPE_P(zv) == IS_LONG)
+			return &zv->value.lval;
+	}
+#else
 	zval **pvalue;
 
 	if (ht && zend_hash_find(ht, (char *) idx, strlen(idx) + 1, (void **) &pvalue) == SUCCESS) {
@@ -231,10 +277,27 @@ static long *array_lookup_long(HashTable *ht, const char *idx)
 		return &(*pvalue)->value.lval;
 	}
 	return 0;
+#endif
 }
 
 static long *array_lookup_bool(HashTable *ht, const char *idx)
 {
+#if PHP_API_VERSION >= 20150101
+	zval *zv;
+	static long l_true = 1;
+	static long l_false = 0;
+
+	zend_string *str = zend_string_init(idx, strlen(idx), 0);
+	zv = zend_hash_find(ht, str);
+	zend_string_release(str);
+	if (zv) {
+		convert_to_bool(zv);
+		if (Z_TYPE_P(zv) == IS_TRUE)
+			return &l_true;
+		if (Z_TYPE_P(zv) == IS_FALSE)
+			return &l_false;
+	}
+#else
 	zval **pvalue;
 
 	if (ht && zend_hash_find(ht, (char *) idx, strlen(idx) + 1, (void **) &pvalue) == SUCCESS) {
@@ -242,6 +305,7 @@ static long *array_lookup_bool(HashTable *ht, const char *idx)
 		convert_to_boolean(*pvalue);
 		return &(*pvalue)->value.lval;
 	}
+#endif
 	return 0;
 }
 
@@ -747,8 +811,8 @@ PHP_FUNCTION(yaz_hits)
 			const char *str =
 				ZOOM_resultset_option_get(p->zoom_set, "resultSetStatus");
 			if (str)
-				add_assoc_string(searchresult, "resultSetStatus",
-								 (char *) str, 1);
+				ADD_ASSOC_STRING(searchresult, "resultSetStatus",
+								 (char *) str);
 		}
 		if (searchresult)
 		{
@@ -771,8 +835,7 @@ PHP_FUNCTION(yaz_hits)
 				sprintf(opt_name, "searchresult.%d.id", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
-					add_assoc_string(zval_element, "id",
-									 (char *) opt_value, 1);
+					ADD_ASSOC_STRING(zval_element, "id", (char *) opt_value);
 
 				sprintf(opt_name, "searchresult.%d.count", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
@@ -782,20 +845,20 @@ PHP_FUNCTION(yaz_hits)
 				sprintf(opt_name, "searchresult.%d.subquery.term", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
-					add_assoc_string(zval_element, "subquery.term",
-									 (char *) opt_value, 1);
+					ADD_ASSOC_STRING(zval_element, "subquery.term",
+									 (char *) opt_value);
 
 				sprintf(opt_name, "searchresult.%d.interpretation.term", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
-					add_assoc_string(zval_element, "interpretation.term",
-									 (char *) opt_value, 1);
+					ADD_ASSOC_STRING(zval_element, "interpretation.term",
+									 (char *) opt_value);
 
 				sprintf(opt_name, "searchresult.%d.recommendation.term", i);
 				opt_value = ZOOM_resultset_option_get(p->zoom_set, opt_name);
 				if (opt_value)
-					add_assoc_string(zval_element, "recommendation.term",
-									 (char *) opt_value, 1);
+					ADD_ASSOC_STRING(zval_element, "recommendation.term",
+									 (char *) opt_value);
 			}
 		}
 
@@ -1128,7 +1191,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 					ind_val[0] = tag[i];
 					ind_val[1] = '\0';
 
-					add_assoc_string(zval_element, ind_idx, ind_val, 1);
+					ADD_ASSOC_STRING(zval_element, ind_idx, ind_val);
 				}
 				for (i = 0; i<sub->num_elements; i++)
 				{
@@ -1145,8 +1208,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 					if (tag && e->content->which == Z_ElementData_string)
 					{
 						const char *v = cvt_string(e->content->u.string, cvt);
-						add_assoc_string(zval_element, (char*) tag, (char*) v,
-										 1);
+						ADD_ASSOC_STRING(zval_element, (char*) tag, (char*) v);
 					}
 				}
 			}
@@ -1181,7 +1243,7 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 			add_assoc_long(zval_element, "tagType", (long) *e->tagType);
 
 		if (e->tagValue->which == Z_StringOrNumeric_string)
-			add_assoc_string(zval_element, "tag", e->tagValue->u.string, 1);
+			ADD_ASSOC_STRING(zval_element, "tag", e->tagValue->u.string);
 		else if (e->tagValue->which == Z_StringOrNumeric_numeric)
 			add_assoc_long(zval_element, "tag", (long) *e->tagValue->u.numeric);
 
@@ -1190,7 +1252,7 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 			if (1)
 			{
 				const char *v = cvt_string(e->content->u.string, cvt);
-				add_assoc_string(zval_element, "content", (char*) v, 1);
+				ADD_ASSOC_STRING(zval_element, "content", (char*) v);
 			}
 			break;
 		case Z_ElementData_numeric:
@@ -1261,14 +1323,14 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 		array_init(my_zval);
 		INIT_PZVAL(my_zval);
 
-		add_next_index_string(my_zval, tag, 1);
+		ADD_NEXT_INDEX_STRING(my_zval, tag);
 
 		switch (e->content->which) {
 			case Z_ElementData_string:
 				if (1)
 				{
 					const char *v = cvt_string(e->content->u.string, cvt);
-					add_next_index_string(my_zval, (char*) v, 1);
+					ADD_NEXT_INDEX_STRING(my_zval, (char*) v);
 				}
 				break;
 			case Z_ElementData_numeric:
@@ -1711,12 +1773,12 @@ PHP_FUNCTION(yaz_es_result)
 												  "targetReference");
 
 		if (str) {
-			add_assoc_string(return_value, "targetReference", (char *) str, 1);
+			ADD_ASSOC_STRING(return_value, "targetReference", (char *) str);
 		}
 		str = ZOOM_package_option_get(p->zoom_package,
 									  "xmlUpdateDoc");
 		if (str) {
-			add_assoc_string(return_value, "xmlUpdateDoc", (char *) str, 1);
+			ADD_ASSOC_STRING(return_value, "xmlUpdateDoc", (char *) str);
 		}
 	}
 	release_assoc(p);
@@ -1769,21 +1831,21 @@ PHP_FUNCTION(yaz_scan_result)
 			array_init(my_zval);
 			INIT_PZVAL(my_zval);
 
-			add_next_index_string(my_zval, "term", 1);
+			ADD_NEXT_INDEX_STRING(my_zval, "term");
 
 			if (term) {
-				add_next_index_stringl(my_zval, (char*) term, len, 1);
+				ADD_NEXT_INDEX_STRINGl(my_zval, (char*) term, len);
 			} else {
-				add_next_index_string(my_zval, "?", 1);
+				ADD_NEXT_INDEX_STRING(my_zval, "?");
 			}
 			add_next_index_long(my_zval, occ);
 
 			term = ZOOM_scanset_display_term(p->zoom_scan, pos, &occ, &len);
 
 			if (term) {
-				add_next_index_stringl(my_zval, (char*) term, len, 1);
+				ADD_NEXT_INDEX_STRINGl(my_zval, (char*) term, len);
 			} else {
-				add_next_index_string(my_zval, "?", 1);
+				ADD_NEXT_INDEX_STRING(my_zval, "?");
 			}
 
 			zend_hash_next_index_insert(return_value->value.ht, (void *) &my_zval, sizeof(zval *), NULL);
@@ -1886,8 +1948,8 @@ PHP_FUNCTION(yaz_ccl_parse)
 
 		if (error_code)
 		{
-			add_assoc_string(pval_res, "errorstring",
-							 (char *) ccl_err_msg(error_code), 1);
+			ADD_ASSOC_STRING(pval_res, "errorstring",
+							 (char *) ccl_err_msg(error_code));
 			add_assoc_long(pval_res, "errorpos", error_pos);
 			RETVAL_FALSE;
 		}
@@ -1917,15 +1979,15 @@ PHP_FUNCTION(yaz_ccl_parse)
 					MAKE_STD_ZVAL(zval_stopword);
 					array_init(zval_stopword);
 
-					add_assoc_string(zval_stopword, "field", (char *) qname, 1);
-					add_assoc_string(zval_stopword, "term", (char *) term, 1);
+					ADD_ASSOC_STRING(zval_stopword, "field", (char *) qname);
+					ADD_ASSOC_STRING(zval_stopword, "term", (char *) term);
 					add_next_index_zval(zval_stopwords, zval_stopword);
 				}
 				add_assoc_zval(pval_res, "stopwords", zval_stopwords);
 			}
 			ccl_pquery(wrbuf_pqf, rpn);
-			add_assoc_stringl(pval_res, "rpn",
-							  wrbuf_buf(wrbuf_pqf), wrbuf_len(wrbuf_pqf), 1);
+			ADD_ASSOC_STRINGl(pval_res, "rpn",
+							  wrbuf_buf(wrbuf_pqf), wrbuf_len(wrbuf_pqf));
 			wrbuf_destroy(wrbuf_pqf);
 			ccl_stop_words_destroy(csw);
 			RETVAL_TRUE;
@@ -1970,16 +2032,16 @@ PHP_FUNCTION(yaz_cql_parse)
 			int r;
 			if (!rpn) {
 				add_assoc_long(pval_res, "errorcode", 0);
-				add_assoc_string(pval_res, "addinfo",
-								 (char *) "PQF syntax error", 1);
+				ADD_ASSOC_STRING(pval_res, "addinfo",
+								 (char *) "PQF syntax error");
 				RETVAL_FALSE;
 			} else if ((r = cql_transform_rpn2cql_stream(p->ct, wrbuf_vp_puts,
 														 wrbuf_cql, rpn))) {
 				add_assoc_long(pval_res, "errorcode", r);
 				RETVAL_FALSE;
 			} else {
-				add_assoc_string(pval_res, "cql",
-								 (char *) wrbuf_cstr(wrbuf_cql), 1);
+				ADD_ASSOC_STRING(pval_res, "cql",
+								 (char *) wrbuf_cstr(wrbuf_cql));
 				RETVAL_TRUE;
 			}
 			wrbuf_destroy(wrbuf_cql);
@@ -1990,8 +2052,8 @@ PHP_FUNCTION(yaz_cql_parse)
 			int r = cql_parser_string(cp, query);
 			if (r) {
 				add_assoc_long(pval_res, "errorcode", 0);
-				add_assoc_string(pval_res, "addinfo",
-								 (char *) "syntax error", 1);
+				ADD_ASSOC_STRING(pval_res, "addinfo",
+								 (char *) "syntax error");
 				RETVAL_FALSE;
 			} else {
 				WRBUF wrbuf_addinfo = wrbuf_alloc();
@@ -2001,13 +2063,13 @@ PHP_FUNCTION(yaz_cql_parse)
 				if (r) {
 					add_assoc_long(pval_res, "errorcode", r);
 					if (wrbuf_len(wrbuf_addinfo))
-						add_assoc_string(pval_res, "addinfo",
-										 (char *) wrbuf_cstr(wrbuf_addinfo), 1);
+						ADD_ASSOC_STRING(pval_res, "addinfo",
+										 (char *) wrbuf_cstr(wrbuf_addinfo));
 					RETVAL_FALSE;
 				} else {
 					wrbuf_chop_right(wrbuf_pqf);
-					add_assoc_string(pval_res, "rpn",
-									 (char *) wrbuf_cstr(wrbuf_pqf), 1);
+					ADD_ASSOC_STRING(pval_res, "rpn",
+									 (char *) wrbuf_cstr(wrbuf_pqf));
 					RETVAL_TRUE;
 				}
 				wrbuf_destroy(wrbuf_pqf);
