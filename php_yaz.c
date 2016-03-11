@@ -51,6 +51,7 @@
 typedef struct Yaz_AssociationInfo *Yaz_Association;
 
 #if PHP_API_VERSION >= 20150101
+typedef size_t zend_size_t;
 #define ADD_ASSOC_STRING(x, y, z) add_assoc_string(x, y, z)
 #define ADD_NEXT_INDEX_STRING(x, y) add_next_index_string(x, y)
 #define ADD_NEXT_INDEX_STRINGl(x, y, z) add_next_index_stringl(x, y, z)
@@ -58,6 +59,7 @@ typedef struct Yaz_AssociationInfo *Yaz_Association;
 #define ADD_ASSOC_STRING(x, y, z) add_assoc_string(x, y, z, 1)
 #define ADD_NEXT_INDEX_STRING(x, y) add_next_index_string(x, y, 1)
 #define ADD_NEXT_INDEX_STRINGl(x, y, z) add_next_index_stringl(x, y, z, 1)
+typedef int zend_size_t;
 #endif
 
 struct Yaz_AssociationInfo {
@@ -196,7 +198,6 @@ zend_function_entry yaz_functions [] = {
 static void get_assoc(INTERNAL_FUNCTION_PARAMETERS, zval *id, Yaz_Association *assocp)
 {
 	Yaz_Association *as = 0;
-	zval *pv_res;
 
 	*assocp = 0;
 #ifdef ZTS
@@ -204,7 +205,7 @@ static void get_assoc(INTERNAL_FUNCTION_PARAMETERS, zval *id, Yaz_Association *a
 #endif
 
 #if PHP_API_VERSION >= 20150101
-	as = (Yaz_Association *) zend_fetch_resource(Z_RES_P(pv_res),
+	as = (Yaz_Association *) zend_fetch_resource(Z_RES_P(id),
 												 "YAZ link", le_link);
 #else
 	ZEND_FETCH_RESOURCE(as, Yaz_Association *, &id, -1, "YAZ link", le_link);
@@ -369,7 +370,7 @@ PHP_FUNCTION(yaz_connect)
 	int i;
 	char *cp;
 	char *zurl_str;
-	int zurl_len;
+	zend_size_t zurl_len;
 	const char *sru_str = 0, *sru_version_str = 0;
 	const char *user_str = 0, *group_str = 0, *pass_str = 0;
 	const char *cookie_str = 0, *proxy_str = 0;
@@ -570,7 +571,7 @@ PHP_FUNCTION(yaz_close)
 PHP_FUNCTION(yaz_search)
 {
 	char *query_str, *type_str;
-	int query_len, type_len;
+	zend_size_t query_len, type_len;
 	zval *id;
 	Yaz_Association p;
 
@@ -1450,7 +1451,7 @@ PHP_FUNCTION(yaz_record)
 	Yaz_Association p;
 	long pos;
 	char *type;
-	int type_len;
+	zend_size_t type_len;
 
 	if (ZEND_NUM_ARGS() != 3) {
 		WRONG_PARAM_COUNT;
@@ -1526,7 +1527,7 @@ PHP_FUNCTION(yaz_syntax)
 {
 	zval *pval_id;
 	const char *syntax;
-	int syntax_len;
+	zend_size_t syntax_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
@@ -1547,7 +1548,7 @@ PHP_FUNCTION(yaz_element)
 {
 	zval *pval_id;
 	const char *element;
-	int element_len;
+	zend_size_t element_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
@@ -1568,7 +1569,7 @@ PHP_FUNCTION(yaz_schema)
 {
 	zval *pval_id;
 	const char *schema;
-	int schema_len;
+	zend_size_t schema_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
@@ -1638,7 +1639,7 @@ PHP_FUNCTION(yaz_set_option)
 	} else if (ZEND_NUM_ARGS() == 3) {
 		zval *pval_id;
 		char *name, *value;
-		int name_len, value_len;
+		zend_size_t name_len, value_len;
 		if (zend_parse_parameters(3 TSRMLS_CC, "zss",
 								  &pval_id, &name, &name_len,
 								  &value, &value_len) == FAILURE) {
@@ -1659,7 +1660,7 @@ PHP_FUNCTION(yaz_get_option)
 {
 	zval *pval_id;
 	char *name;
-	int name_len;
+	zend_size_t name_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
@@ -1716,7 +1717,7 @@ PHP_FUNCTION(yaz_sort)
 {
 	zval *pval_id;
 	const char *criteria;
-	int criteria_len;
+	zend_size_t criteria_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
@@ -1781,7 +1782,7 @@ PHP_FUNCTION(yaz_es)
 {
 	zval *pval_id, *pval_package;
 	const char *type;
-	int type_len;
+	zend_size_t type_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 3 ||
@@ -1816,7 +1817,7 @@ PHP_FUNCTION(yaz_scan)
 {
 	zval *pval_id, *pval_flags;
 	char *type, *query;
-	int type_len, query_len;
+	zend_size_t type_len, query_len;
 	HashTable *flags_ht = 0;
 	Yaz_Association p;
 
@@ -2048,7 +2049,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 {
 	zval *pval_id, *pval_res = 0;
 	char *query;
-	int query_len;
+	zend_size_t query_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 3 ||
@@ -2140,7 +2141,7 @@ PHP_FUNCTION(yaz_cql_parse)
 {
 	zval *pval_id, *pval_res = 0;
 	char *query;
-	int query_len;
+	zend_size_t query_len;
 	Yaz_Association p;
 	zend_bool reverse = 0;
 
@@ -2285,7 +2286,7 @@ PHP_FUNCTION(yaz_database)
 {
 	zval *pval_id;
 	char *database;
-	int database_len;
+	zend_size_t database_len;
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 2 ||
