@@ -2146,7 +2146,7 @@ PHP_FUNCTION(yaz_cql_parse)
 	zend_bool reverse = 0;
 
 	if (ZEND_NUM_ARGS() != 4 ||
-		zend_parse_parameters(4 TSRMLS_CC, "zszb",
+		zend_parse_parameters(4 TSRMLS_CC, "zsz/b",
 							  &pval_id, &query, &query_len, &pval_res, &reverse)
 		== FAILURE) {
 		WRONG_PARAM_COUNT;
