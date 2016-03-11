@@ -73,7 +73,11 @@ struct Yaz_AssociationInfo {
 	int persistent;
 	int in_use;
 	int order;
+#if PHP_API_VERSION >= 20150101
+	zend_resource *zval_resource;
+#else
 	int zval_resource;
+#endif
 	long time_stamp;
 };
 
@@ -276,8 +280,8 @@ long
 		convert_to_long(*pvalue);
 		return &(*pvalue)->value.lval;
 	}
-	return 0;
 #endif
+	return 0;
 }
 
 static long *array_lookup_bool(HashTable *ht, const char *idx)
@@ -291,7 +295,7 @@ static long *array_lookup_bool(HashTable *ht, const char *idx)
 	zv = zend_hash_find(ht, str);
 	zend_string_release(str);
 	if (zv) {
-		convert_to_bool(zv);
+		convert_to_boolean(zv);
 		if (Z_TYPE_P(zv) == IS_TRUE)
 			return &l_true;
 		if (Z_TYPE_P(zv) == IS_FALSE)
@@ -393,10 +397,14 @@ PHP_FUNCTION(yaz_connect)
 			WRONG_PARAM_COUNT;
 		}
 
-		if (Z_TYPE_PP(&user) == IS_ARRAY) {
+		if (Z_TYPE_P(user) == IS_ARRAY) {
 			long *persistent_val;
 			long *piggyback_val;
+#if PHP_API_VERSION >= 20150101
+			HashTable *ht = Z_ARRVAL_P(user);
+#else
 			HashTable *ht = Z_ARRVAL_PP(&user);
+#endif
 
 			sru_str = array_lookup_string(ht, "sru");
 			sru_version_str = array_lookup_string(ht, "sru_version");
@@ -421,10 +429,12 @@ PHP_FUNCTION(yaz_connect)
 			otherInfo[0] = array_lookup_string(ht, "otherInfo0");
 			otherInfo[1] = array_lookup_string(ht, "otherInfo1");
 			otherInfo[2] = array_lookup_string(ht, "otherInfo2");
-		} else if (Z_TYPE_PP(&user) == IS_STRING) {
-			convert_to_string_ex(&user);
-			if (*user->value.str.val)
-				user_str = user->value.str.val;
+		} else if (Z_TYPE_P(user) == IS_STRING) {
+#if PHP_API_VERSION >= 20150110
+			user_str = ZSTR_VAL(user->value.str);
+#else
+			user_str = user->value.str.val;
+#endif
 		}
 	} else {
 		WRONG_PARAM_COUNT;
@@ -520,8 +530,13 @@ PHP_FUNCTION(yaz_connect)
 	tsrm_mutex_unlock(yaz_mutex);
 #endif
 
+#if PHP_API_VERSION >= 20150101
+    RETURN_RES(zend_register_resource(&shared_associations[i], le_link));
+	as->zval_resource = Z_RES_P(return_value);
+#else
 	ZEND_REGISTER_RESOURCE(return_value, &shared_associations[i], le_link);
 	as->zval_resource = Z_LVAL_P(return_value);
+#endif
 }
 /* }}} */
 
@@ -541,8 +556,11 @@ PHP_FUNCTION(yaz_close)
 		RETURN_FALSE;
 	}
 	release_assoc(p);
+#if PHP_API_VERSION >= 20150101
+	zend_list_close(Z_RES_P(id));
+#else
 	zend_list_delete(id->value.lval);
-
+#endif
 	RETURN_TRUE;
 }
 /* }}} */
@@ -656,7 +674,11 @@ PHP_FUNCTION(yaz_wait)
 			FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
+#if PHP_API_VERSION >= 20150101
+		options_ht = Z_ARRVAL_P(pval_options);
+#else
 		options_ht = Z_ARRVAL_PP(&pval_options);
+#endif
 		val = array_lookup_long(options_ht, "timeout");
 		if (val) {
 			timeout = *val;
@@ -697,10 +719,13 @@ PHP_FUNCTION(yaz_wait)
 				add_assoc_long(pval_options, "connid", ev);
 				add_assoc_long(pval_options, "eventcode", event_code);
 			}
-
+#if PHP_API_VERSION >= 20150101
+			Z_RES_P(return_value) = p->zval_resource;
+#else
+			Z_TYPE_P(return_value) = IS_RESOURCE;
 			zend_list_addref(p->zval_resource);
 			Z_LVAL_P(return_value) = p->zval_resource;
-			Z_TYPE_P(return_value) = IS_RESOURCE;
+#endif
 			return;
 		}
 	}
@@ -752,9 +777,14 @@ PHP_FUNCTION(yaz_error)
 		if (!code) {
 			msg = "";
 		}
+#if PHP_API_VERSION >= 20150101
+		zend_string *str = zend_string_init(msg, strlen(msg), 0);
+		RETURN_STR(str);
+#else
 		return_value->value.str.len = strlen(msg);
 		return_value->value.str.val = estrndup(msg, return_value->value.str.len);
 		return_value->type = IS_STRING;
+#endif
 	}
 	release_assoc(p);
 }
@@ -774,10 +804,14 @@ PHP_FUNCTION(yaz_addinfo)
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (p) {
 		const char *addinfo = ZOOM_connection_addinfo(p->zoom_conn);
-
+#if PHP_API_VERSION >= 20150101
+		zend_string *str = zend_string_init(addinfo, strlen(addinfo), 0);
+		RETURN_STR(str);
+#else
 		return_value->value.str.len = strlen(addinfo);
 		return_value->value.str.val = estrndup(addinfo, return_value->value.str.len);
 		return_value->type = IS_STRING;
+#endif
 	}
 	release_assoc(p);
 }
@@ -827,8 +861,10 @@ PHP_FUNCTION(yaz_hits)
 				char opt_name[80];
 				const char *opt_value;
 				zval *zval_element;
-
+#if PHP_API_VERSION >= 20150101
+#else
 				MAKE_STD_ZVAL(zval_element);
+#endif
 				array_init(zval_element);
 				add_next_index_zval(searchresult, zval_element);
 
@@ -1133,7 +1169,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			tag = tagstr;
 		}
 		else if (e->tagValue->which == Z_StringOrNumeric_string)
-			tag = e->tagValue->u.string, zval_element;
+			tag = e->tagValue->u.string;
 
 		if (!tag)
 			continue;
@@ -1145,7 +1181,10 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			zval_list = tl->zval_list;
 		else
 		{
+#if PHP_API_VERSION >= 20150101
+#else
 			MAKE_STD_ZVAL(zval_list);
+#endif
 			array_init(zval_list);
 			add_assoc_zval(return_value, tag, zval_list);
 
@@ -1155,7 +1194,10 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			tl->next = all_tags;
 			all_tags = tl;
 		}
+#if PHP_API_VERSION >= 20150101
+#else
 		MAKE_STD_ZVAL(zval_element);
+#endif
 		array_init(zval_element);
 		add_next_index_zval(zval_list, zval_element);
 		if (e->content->which == Z_ElementData_subtree)
@@ -1203,7 +1245,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 						tag = tagstr;
 					}
 					else if (e->tagValue->which == Z_StringOrNumeric_string)
-						tag = e->tagValue->u.string, zval_element;
+						tag = e->tagValue->u.string;
 
 					if (tag && e->content->which == Z_ElementData_string)
 					{
@@ -1215,8 +1257,9 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			else if (tag && e->content->which == Z_ElementData_string)
 			{
 				/* Leader or control field */
+				const char *tag = "control";
 				const char *v = cvt_string(e->content->u.string, cvt);
-				ZVAL_STRING(zval_element, (char*) v, 1);
+				ADD_ASSOC_STRING(zval_element, (char*) tag, (char*) v);
 			}
 		}
 	}
@@ -1236,7 +1279,10 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 		zval *zval_sub;
 		Z_TaggedElement *e = p->elements[i];
 
+#if PHP_API_VERSION >= 20150101
+#else
 		MAKE_STD_ZVAL(zval_element);
+#endif
 		array_init(zval_element);
 
 		if (e->tagType)
@@ -1262,7 +1308,10 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 			add_assoc_bool(zval_element, "content",*e->content->u.trueOrFalse);
 			break;
 		case Z_ElementData_subtree:
+#if PHP_API_VERSION >= 20150101
+#else
 			MAKE_STD_ZVAL(zval_sub);
+#endif
 			retval_array2_grs1(zval_sub, e->content->u.subtree, cvt);
 			add_assoc_zval(zval_element, "content", zval_sub);
 		}
@@ -1319,10 +1368,15 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 			strcpy(tag + taglen, ")");
 		}
 
+#if PHP_API_VERSION >= 20150101
+#else
 		ALLOC_ZVAL(my_zval);
+#endif
 		array_init(my_zval);
+#if PHP_API_VERSION >= 20150101
+#else
 		INIT_PZVAL(my_zval);
-
+#endif
 		ADD_NEXT_INDEX_STRING(my_zval, tag);
 
 		switch (e->content->which) {
@@ -1346,7 +1400,11 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 					eno[level] = -1;
 				}
 		}
+#if PHP_API_VERSION >= 20150101
+		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), my_zval);
+#else
 		zend_hash_next_index_insert(return_value->value.ht, (void *) &my_zval, sizeof(zval *), NULL);
+#endif
 		eno[level]++;
 	}
 }
@@ -1436,10 +1494,17 @@ PHP_FUNCTION(yaz_record)
 				int rlen;
 				const char *info = ZOOM_record_get(r, type, &rlen);
 				if (info) {
+#if PHP_API_VERSION >= 20150101
+					zend_string *str =
+						zend_string_init(info,
+										 rlen > 0 ? rlen : strlen(info), 0);
+					RETURN_STR(str);
+#else
 					return_value->value.str.len = (rlen > 0) ? rlen : 0;
 					return_value->value.str.val =
 						estrndup(info, return_value->value.str.len);
 					return_value->type = IS_STRING;
+#endif
 				}
 				else
 				{
@@ -1536,8 +1601,22 @@ PHP_FUNCTION(yaz_set_option)
 			HashTable *ht;
 			zval **ent;
 
+#if PHP_API_VERSION >= 20150101
+			ulong num_key;
+			zend_string *key;
+			zval *val;
+
+			ht = Z_ARRVAL_P(pval_ar);
+			ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, val) {
+				if (key) { //HASH_KEY_IS_STRING
+					if (Z_TYPE_P(val) == IS_STRING)
+						option_set(p, key->val, val->value.str->val);
+				}
+			}
+			ZEND_HASH_FOREACH_END();
+#else
 			ht = Z_ARRVAL_PP(&pval_ar);
-			for(zend_hash_internal_pointer_reset_ex(ht, &pos);
+			for (zend_hash_internal_pointer_reset_ex(ht, &pos);
 				zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
 				zend_hash_move_forward_ex(ht, &pos)
 			) {
@@ -1553,6 +1632,7 @@ PHP_FUNCTION(yaz_set_option)
 				}
 				option_set(p, key, (*ent)->value.str.val);
 			}
+#endif
 			release_assoc(p);
 		}
 	} else if (ZEND_NUM_ARGS() == 3) {
@@ -1594,9 +1674,14 @@ PHP_FUNCTION(yaz_get_option)
 		if (!v) {
 			v = "";
 		}
+#if PHP_API_VERSION >= 20150101
+		zend_string *str = zend_string_init(v, strlen(v), 0);
+		RETURN_STR(str);
+#else
 		return_value->value.str.len = strlen(v);
 		return_value->value.str.val = estrndup(v, return_value->value.str.len);
 		return_value->type = IS_STRING;
+#endif
 	} else {
 		RETVAL_FALSE;
 	}
@@ -1673,7 +1758,13 @@ PHP_FUNCTION(yaz_itemorder)
 		ZOOM_options options = ZOOM_options_create();
 
 		ZOOM_options_set_callback(options,
-								  ill_array_lookup, Z_ARRVAL_PP(&pval_package));
+								  ill_array_lookup,
+#if PHP_API_VERSION >= 20150101
+								  Z_ARRVAL_P(pval_package)
+#else
+								  Z_ARRVAL_PP(&pval_package)
+#endif
+								  );
 		ZOOM_package_destroy(p->zoom_package);
 		p->zoom_package = ZOOM_connection_package(p->zoom_conn, options);
 		ZOOM_package_send(p->zoom_package, "itemorder");
@@ -1703,7 +1794,12 @@ PHP_FUNCTION(yaz_es)
 		ZOOM_options options = ZOOM_options_create();
 
 		ZOOM_options_set_callback(options, ill_array_lookup,
-								  Z_ARRVAL_PP(&pval_package));
+#if PHP_API_VERSION >= 20150101
+								  Z_ARRVAL_P(pval_package)
+#else
+								  Z_ARRVAL_PP(&pval_package)
+#endif
+								  );
 		ZOOM_package_destroy(p->zoom_package);
 		p->zoom_package = ZOOM_connection_package(p->zoom_conn, options);
 		ZOOM_package_send(p->zoom_package, type);
@@ -1736,7 +1832,14 @@ PHP_FUNCTION(yaz_scan)
 								  &query, &query_len, &pval_flags) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
-		flags_ht = Z_ARRVAL_PP(&pval_flags);
+
+		flags_ht =
+#if PHP_API_VERSION >= 20150101
+			Z_ARRVAL_P(pval_flags)
+#else
+			Z_ARRVAL_PP(&pval_flags)
+#endif
+			;
 	} else {
 		WRONG_PARAM_COUNT;
 	}
@@ -1826,11 +1929,15 @@ PHP_FUNCTION(yaz_scan_result)
 		for (pos = 0; pos < size; pos++) {
 			const char *term = ZOOM_scanset_term(p->zoom_scan, pos, &occ, &len);
 			zval *my_zval;
-
+#if PHP_API_VERSION >= 20150101
+#else
 			ALLOC_ZVAL(my_zval);
+#endif
 			array_init(my_zval);
+#if PHP_API_VERSION >= 20150101
+#else
 			INIT_PZVAL(my_zval);
-
+#endif
 			ADD_NEXT_INDEX_STRING(my_zval, "term");
 
 			if (term) {
@@ -1848,7 +1955,11 @@ PHP_FUNCTION(yaz_scan_result)
 				ADD_NEXT_INDEX_STRING(my_zval, "?");
 			}
 
-			zend_hash_next_index_insert(return_value->value.ht, (void *) &my_zval, sizeof(zval *), NULL);
+#if PHP_API_VERSION >= 20150101
+               zend_hash_next_index_insert(Z_ARRVAL_P(return_value), my_zval);
+#else
+			   zend_hash_next_index_insert(return_value->value.ht, (void *) &my_zval, sizeof(zval *), NULL);
+#endif
 		}
 
 		if (pval_opt) {
@@ -1888,18 +1999,32 @@ PHP_FUNCTION(yaz_ccl_conf)
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
+		ccl_qual_rm(&p->bibset);
+		p->bibset = ccl_qual_mk();
+	}
+	if (p) {
+#if PHP_API_VERSION >= 20150101
+		HashTable *ht = Z_ARRVAL_P(pval_package);
+		ulong num_key;
+		zend_string *key;
+		zval *val;
+
+		ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, val) {
+			if (key) { //HASH_KEY_IS_STRING
+				if (Z_TYPE_P(val) == IS_STRING)
+					ccl_qual_fitem(p->bibset, val->value.str->val, key->val);
+			}
+		}
+		ZEND_HASH_FOREACH_END();
+#else
 		HashTable *ht = Z_ARRVAL_PP(&pval_package);
 		HashPosition pos;
 		zval **ent;
 		char *key;
-
-		ccl_qual_rm(&p->bibset);
-		p->bibset = ccl_qual_mk();
-
 		for (zend_hash_internal_pointer_reset_ex(ht, &pos);
-			zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
-			zend_hash_move_forward_ex(ht, &pos)
-		) {
+			 zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
+			 zend_hash_move_forward_ex(ht, &pos)
+			 ) {
 			ulong idx;
 #if PHP_API_VERSION > 20010101
 			int type = zend_hash_get_current_key_ex(ht, &key, 0, &idx, 0, &pos);
@@ -1911,6 +2036,7 @@ PHP_FUNCTION(yaz_ccl_conf)
 			}
 			ccl_qual_fitem(p->bibset, (*ent)->value.str.val, key);
 		}
+#endif
 	}
 	release_assoc(p);
 }
@@ -1965,7 +2091,10 @@ PHP_FUNCTION(yaz_ccl_parse)
 				zval *zval_stopwords;
 				int idx;
 
+#if PHP_API_VERSION >= 20150101
+#else
 				MAKE_STD_ZVAL(zval_stopwords);
+#endif
 				array_init(zval_stopwords);
 				for (idx = 0; ; idx++)
 				{
@@ -1976,7 +2105,10 @@ PHP_FUNCTION(yaz_ccl_parse)
 					if (!ccl_stop_words_info(csw, idx, &qname, &term))
 						break;
 
+#if PHP_API_VERSION >= 20150101
+#else
 					MAKE_STD_ZVAL(zval_stopword);
+#endif
 					array_init(zval_stopword);
 
 					ADD_ASSOC_STRING(zval_stopword, "field", (char *) qname);
@@ -1986,8 +2118,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 				add_assoc_zval(pval_res, "stopwords", zval_stopwords);
 			}
 			ccl_pquery(wrbuf_pqf, rpn);
-			ADD_ASSOC_STRINGl(pval_res, "rpn",
-							  wrbuf_buf(wrbuf_pqf), wrbuf_len(wrbuf_pqf));
+			ADD_ASSOC_STRING(pval_res, "rpn", (char*) wrbuf_cstr(wrbuf_pqf));
 			wrbuf_destroy(wrbuf_pqf);
 			ccl_stop_words_destroy(csw);
 			RETVAL_TRUE;
@@ -2101,13 +2232,29 @@ PHP_FUNCTION(yaz_cql_conf)
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
+		cql_transform_close(p->ct);
+		p->ct = cql_transform_create();
+	}
+	if (p) {
+#if PHP_API_VERSION >= 20150101
+		HashTable *ht = Z_ARRVAL_P(pval_package);
+		ulong num_key;
+		zend_string *key;
+		zval *val;
+
+		ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, val) {
+			if (key) { //HASH_KEY_IS_STRING
+				if (Z_TYPE_P(val) == IS_STRING)
+					cql_transform_define_pattern(p->ct, key->val,
+												 val->value.str->val);
+			}
+		}
+		ZEND_HASH_FOREACH_END();
+#else
 		HashTable *ht = Z_ARRVAL_PP(&pval_package);
 		HashPosition pos;
 		zval **ent;
 		char *key;
-
-		cql_transform_close(p->ct);
-		p->ct = cql_transform_create();
 
 		for (zend_hash_internal_pointer_reset_ex(ht, &pos);
 			zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
@@ -2125,6 +2272,7 @@ PHP_FUNCTION(yaz_cql_conf)
 
 			cql_transform_define_pattern(p->ct, key, (*ent)->value.str.val);
 		}
+#endif
 	}
 	release_assoc(p);
 }
@@ -2177,11 +2325,21 @@ static void yaz_close_session(Yaz_Association *as TSRMLS_DC)
 	}
 }
 
+
+#if PHP_API_VERSION >= 20150101
+static void yaz_close_link(zend_resource *res TSRMLS_DC)
+{
+	Yaz_Association *as = (Yaz_Association *)
+		zend_fetch_resource(res, "YAZ link", le_link);
+	yaz_close_session(as TSRMLS_CC);
+}
+#else
 static void yaz_close_link(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	Yaz_Association *as = (Yaz_Association *) rsrc->ptr;
 	yaz_close_session(as TSRMLS_CC);
 }
+#endif
 
 /* {{{ PHP_INI_BEGIN
  */
