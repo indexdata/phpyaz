@@ -671,7 +671,7 @@ PHP_FUNCTION(yaz_wait)
 		long *val = 0;
 		long *event_bool = 0;
 		HashTable *options_ht = 0;
-		if (zend_parse_parameters(1 TSRMLS_CC, "a", &pval_options) ==
+		if (zend_parse_parameters(1 TSRMLS_CC, "a/", &pval_options) ==
 			FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
@@ -830,7 +830,7 @@ PHP_FUNCTION(yaz_hits)
 			WRONG_PARAM_COUNT;
 		}
 	} else if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2 TSRMLS_CC, "za", &id, &searchresult)
+		if (zend_parse_parameters(2 TSRMLS_CC, "za/", &id, &searchresult)
 			== FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
@@ -1897,7 +1897,7 @@ PHP_FUNCTION(yaz_scan_result)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2 TSRMLS_CC, "zz",
+		if (zend_parse_parameters(2 TSRMLS_CC, "zz/",
 								  &pval_id, &pval_opt) == FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
@@ -2053,7 +2053,7 @@ PHP_FUNCTION(yaz_ccl_parse)
 	Yaz_Association p;
 
 	if (ZEND_NUM_ARGS() != 3 ||
-		zend_parse_parameters(3 TSRMLS_CC, "zsz",
+		zend_parse_parameters(3 TSRMLS_CC, "zsz/",
 							  &pval_id, &query, &query_len, &pval_res)
 		== FAILURE) {
 		WRONG_PARAM_COUNT;
