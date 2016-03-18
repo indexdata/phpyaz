@@ -542,7 +542,7 @@ PHP_FUNCTION(yaz_connect)
 /* }}} */
 
 /* {{{ proto bool yaz_close(resource id)
-   Destory and close target */
+   Destroy and close target */
 PHP_FUNCTION(yaz_close)
 {
 	Yaz_Association p;

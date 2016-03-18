@@ -40,6 +40,7 @@ Fix compilation for older YAZ versions. Tests part of package.
    <file name="yaz.dsp" role="src" />
    <dir name="tests">
      <file name="connect.phpt" role="test"/>
+     <file name="ccl.phpt" role="test"/>
      <file name="cql.phpt" role="test"/>
      <file name="database.phpt" role="test"/>
      <file name="record.phpt" role="test"/>
