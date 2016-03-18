@@ -863,6 +863,8 @@ PHP_FUNCTION(yaz_hits)
 				const char *opt_value;
 				zval *zval_element;
 #if PHP_API_VERSION >= 20150101
+				zval zval_element0;
+				zval_element = &zval_element0;
 #else
 				MAKE_STD_ZVAL(zval_element);
 #endif
@@ -1161,6 +1163,9 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 		struct tag_list *tl;
 		zval *zval_element;
 		zval *zval_list;
+#if PHP_API_VERSION >= 20150101
+		zval zval_element0, zval_list0;
+#endif
 		Z_TaggedElement *e = p->elements[i];
 		char tagstr[32], *tag = 0;
 
@@ -1183,6 +1188,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 		else
 		{
 #if PHP_API_VERSION >= 20150101
+			zval_list = &zval_list0;
 #else
 			MAKE_STD_ZVAL(zval_list);
 #endif
@@ -1196,6 +1202,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 			all_tags = tl;
 		}
 #if PHP_API_VERSION >= 20150101
+		zval_element = &zval_element0;
 #else
 		MAKE_STD_ZVAL(zval_element);
 #endif
@@ -1281,6 +1288,9 @@ static void retval_array2_grs1(zval *return_value, Z_GenericRecord *p,
 		Z_TaggedElement *e = p->elements[i];
 
 #if PHP_API_VERSION >= 20150101
+		zval zval_element0, zval_sub0;
+		zval_element = &zval_element0;
+		zval_sub = &zval_sub0;
 #else
 		MAKE_STD_ZVAL(zval_element);
 #endif
@@ -1338,7 +1348,9 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 		int i;
 		char tag[256];
 		int taglen = 0;
-
+#if PHP_API_VERSION >= 20150101
+		zval my_zval0;
+#endif
 		if (eno[level] >= p->num_elements) {
 			--level;
 			if (level >= 0)
@@ -1370,6 +1382,7 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 		}
 
 #if PHP_API_VERSION >= 20150101
+		my_zval = &my_zval0;
 #else
 		ALLOC_ZVAL(my_zval);
 #endif
@@ -1598,17 +1611,14 @@ PHP_FUNCTION(yaz_set_option)
 		}
 		get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 		if (p) {
-			HashPosition pos;
 			HashTable *ht;
-			zval **ent;
 
 #if PHP_API_VERSION >= 20150101
-			ulong num_key;
 			zend_string *key;
 			zval *val;
 
 			ht = Z_ARRVAL_P(pval_ar);
-			ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, val) {
+			ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, val) {
 				if (key) { //HASH_KEY_IS_STRING
 					if (Z_TYPE_P(val) == IS_STRING)
 						option_set(p, key->val, val->value.str->val);
@@ -1616,6 +1626,8 @@ PHP_FUNCTION(yaz_set_option)
 			}
 			ZEND_HASH_FOREACH_END();
 #else
+			zval **ent;
+			HashPosition pos;
 			ht = Z_ARRVAL_PP(&pval_ar);
 			for (zend_hash_internal_pointer_reset_ex(ht, &pos);
 				zend_hash_get_current_data_ex(ht, (void**) &ent, &pos) == SUCCESS;
@@ -1931,6 +1943,8 @@ PHP_FUNCTION(yaz_scan_result)
 			const char *term = ZOOM_scanset_term(p->zoom_scan, pos, &occ, &len);
 			zval *my_zval;
 #if PHP_API_VERSION >= 20150101
+			zval my_zval0;
+			my_zval = &my_zval0;
 #else
 			ALLOC_ZVAL(my_zval);
 #endif
@@ -2006,11 +2020,10 @@ PHP_FUNCTION(yaz_ccl_conf)
 	if (p) {
 #if PHP_API_VERSION >= 20150101
 		HashTable *ht = Z_ARRVAL_P(pval_package);
-		ulong num_key;
 		zend_string *key;
 		zval *val;
 
-		ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, val) {
+		ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, val) {
 			if (key) { //HASH_KEY_IS_STRING
 				if (Z_TYPE_P(val) == IS_STRING)
 					ccl_qual_fitem(p->bibset, val->value.str->val, key->val);
@@ -2093,6 +2106,8 @@ PHP_FUNCTION(yaz_ccl_parse)
 				int idx;
 
 #if PHP_API_VERSION >= 20150101
+				zval zval_stopwords0;
+				zval_stopwords = &zval_stopwords0;
 #else
 				MAKE_STD_ZVAL(zval_stopwords);
 #endif
@@ -2107,6 +2122,8 @@ PHP_FUNCTION(yaz_ccl_parse)
 						break;
 
 #if PHP_API_VERSION >= 20150101
+					zval zval_stopword0;
+					zval_stopword = &zval_stopword0;
 #else
 					MAKE_STD_ZVAL(zval_stopword);
 #endif
@@ -2239,11 +2256,10 @@ PHP_FUNCTION(yaz_cql_conf)
 	if (p) {
 #if PHP_API_VERSION >= 20150101
 		HashTable *ht = Z_ARRVAL_P(pval_package);
-		ulong num_key;
 		zend_string *key;
 		zval *val;
 
-		ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, val) {
+		ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, val) {
 			if (key) { //HASH_KEY_IS_STRING
 				if (Z_TYPE_P(val) == IS_STRING)
 					cql_transform_define_pattern(p->ct, key->val,
