@@ -14,11 +14,11 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2014-11-03</date>
- <time>13:38:00</time>
+ <date>2016-03-11</date>
+ <time>14:24:00</time>
  <version>
-  <release>1.1.9</release>
-  <api>1.1.9</api>
+  <release>1.1.10</release>
+  <api>1.1.10</api>
  </version>
  <stability>
   <release>stable</release>
@@ -26,7 +26,7 @@ Find more information at:
  </stability>
  <license uri="http://www.indexdata.com/licences/revised-bsd">revised BSD</license>
  <notes>
-Fix compilation for older YAZ versions. Tests part of package.
+Updates for PHP 7. Still works with PHP 5 series.
  </notes>
  <contents>
   <dir name="/">
