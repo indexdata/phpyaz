@@ -14,6 +14,7 @@ echo yaz_record($z, 1, "string");
 echo yaz_record($z, 1, "xml");
 yaz_element($z, "B");
 echo yaz_record($z, 1, "xml");
+print_r(yaz_record($z, 1, "array"));
 --EXPECT--
 0::
 10
@@ -73,3 +74,55 @@ echo yaz_record($z, 1, "xml");
     <subfield code="a">How to program a computer</subfield>
   </datafield>
 </record>
+Array
+(
+    [0] => Array
+        (
+            [0] => (3,leader)
+            [1] => 00122nam  22000618a 4504
+        )
+
+    [1] => Array
+        (
+            [0] => (3,001)
+        )
+
+    [2] => Array
+        (
+            [0] => (3,001)(3,@)
+            [1] =>    11224466 
+        )
+
+    [3] => Array
+        (
+            [0] => (3,100)
+        )
+
+    [4] => Array
+        (
+            [0] => (3,100)(3,10)
+        )
+
+    [5] => Array
+        (
+            [0] => (3,100)(3,10)(3,a)
+            [1] => Jack Collins
+        )
+
+    [6] => Array
+        (
+            [0] => (3,245)
+        )
+
+    [7] => Array
+        (
+            [0] => (3,245)(3,10)
+        )
+
+    [8] => Array
+        (
+            [0] => (3,245)(3,10)(3,a)
+            [1] => How to program a computer
+        )
+
+)
