@@ -830,15 +830,18 @@ PHP_FUNCTION(yaz_hits)
 			WRONG_PARAM_COUNT;
 		}
 	} else if (ZEND_NUM_ARGS() == 2) {
-		if (zend_parse_parameters(2 TSRMLS_CC, "za/", &id, &searchresult)
+		if (zend_parse_parameters(2 TSRMLS_CC, "zz/", &id, &searchresult)
 			== FAILURE) {
 			WRONG_PARAM_COUNT;
 		}
 	} else {
 		WRONG_PARAM_COUNT;
 	}
-
+	if (searchresult && array_init(searchresult) == FAILURE) {
+		RETURN_FALSE;
+	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
+
 	if (p && p->zoom_set) {
 		RETVAL_LONG(ZOOM_resultset_size(p->zoom_set));
 		if (searchresult)
