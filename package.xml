@@ -14,11 +14,11 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2016-03-11</date>
- <time>14:24:00</time>
+ <date>2016-03-21</date>
+ <time>14:36:00</time>
  <version>
-  <release>1.1.10</release>
-  <api>1.1.10</api>
+  <release>1.2.0</release>
+  <api>1.2.0</api>
  </version>
  <stability>
   <release>stable</release>

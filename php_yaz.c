@@ -1,5 +1,5 @@
 /* This file is part of PHP YAZ.
- * Copyright (C) Index Data 2004-2014
+ * Copyright (C) Index Data 2004-2016
  * See the file LICENSE for details.
  */
 

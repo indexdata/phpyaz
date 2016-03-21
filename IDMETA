@@ -1,4 +1,4 @@
 DEBIAN_DIST="jessie wheezy"
 UBUNTU_DIST="wily vivid trusty"
-VERSION=1.1.10
+VERSION=1.2.0
 NAME=php5-yaz
