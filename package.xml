@@ -44,6 +44,7 @@ Fix compilation for older YAZ versions. Tests part of package.
      <file name="cql.phpt" role="test"/>
      <file name="database.phpt" role="test"/>
      <file name="record.phpt" role="test"/>
+     <file name="scan.phpt" role="test"/>
    </dir>
   </dir>
  </contents>
