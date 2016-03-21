@@ -12,6 +12,8 @@ echo yaz_errno($z) . ":" . yaz_error($z) . ":" . yaz_addinfo($z) . "\n";
 echo yaz_hits($z) . "\n";
 echo yaz_record($z, 1, "string");
 echo yaz_record($z, 1, "xml");
+yaz_element($z, "B");
+echo yaz_record($z, 1, "xml");
 --EXPECT--
 0::
 10
@@ -59,5 +61,15 @@ echo yaz_record($z, 1, "xml");
   </datafield>
   <datafield tag="300" ind1=" " ind2=" ">
     <subfield code="a">p. cm.</subfield>
+  </datafield>
+</record>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>00122nam a22000618a 4504</leader>
+  <controlfield tag="001">   11224466 </controlfield>
+  <datafield tag="100" ind1="1" ind2="0">
+    <subfield code="a">Jack Collins</subfield>
+  </datafield>
+  <datafield tag="245" ind1="1" ind2="0">
+    <subfield code="a">How to program a computer</subfield>
   </datafield>
 </record>
