@@ -17,16 +17,16 @@ function yaz_check_version()
 	c = file_get_contents(yaz_h + "\\yaz\\yaz-version.h");
 	if (typeof(c) == "string" && c.match(/YAZ_VERSIONL\s+(0x[a-zA-Z0-9]+)/)) {
 		v = RegExp.$1;
-		if (parseInt(v) >= 0x30002) {
+		if (parseInt(v) >= 0x50000) {
 			return true;
 		}
-		WARNING("yaz not enabled; version 3.0.2 or higher required; you have version " + v);
+		WARNING("yaz not enabled; version 5.0.0 or higher required; you have version " + v);
 	}
 	return false;
 }
 
 if (PHP_YAZ != "no") {
-	if (yaz_check_version() && CHECK_LIB("yaz4.lib", "yaz", PHP_YAZ)) {
+	if (yaz_check_version() && CHECK_LIB("yaz5.lib", "yaz", PHP_YAZ)) {
 		EXTENSION('yaz', 'php_yaz.c');
 		AC_DEFINE('HAVE_YAZ', 1);
 	} else {
