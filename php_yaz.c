@@ -81,7 +81,7 @@ struct Yaz_AssociationInfo {
 #else
 	int zval_resource;
 #endif
-	long time_stamp;
+	time_t time_stamp;
 };
 
 static Yaz_Association yaz_association_mk()
@@ -1345,7 +1345,7 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 		Z_GenericRecord *p = grs[level];
 		int i;
 		char tag[256];
-		int taglen = 0;
+		size_t taglen = 0;
 #if PHP_API_VERSION >= 20150101
 		zval my_zval0;
 #endif
@@ -1368,7 +1368,7 @@ static void retval_array1_grs1(zval *return_value, Z_GenericRecord *p,
 			taglen = strlen(tag);
 
 			if (e->tagValue->which == Z_StringOrNumeric_string) {
-				int len = strlen(e->tagValue->u.string);
+				size_t len = strlen(e->tagValue->u.string);
 
 				memcpy(tag + taglen, e->tagValue->u.string, len);
 				tag[taglen+len] = '\0';
@@ -1928,14 +1928,14 @@ PHP_FUNCTION(yaz_scan_result)
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p && p->zoom_scan) {
-		int pos = 0;
+		size_t pos = 0;
 		/* ZOOM_scanset_term changed from YAZ 3 to YAZ 4 */
 #if YAZ_VERSIONL >= 0x040000
 		size_t occ, len;
 #else
 		int occ, len;
 #endif
-		int size = ZOOM_scanset_size(p->zoom_scan);
+		size_t size = ZOOM_scanset_size(p->zoom_scan);
 
 		for (pos = 0; pos < size; pos++) {
 			const char *term = ZOOM_scanset_term(p->zoom_scan, pos, &occ, &len);
@@ -2468,7 +2468,7 @@ PHP_MINFO_FUNCTION(yaz)
 
 PHP_RSHUTDOWN_FUNCTION(yaz)
 {
-	long now = time(0);
+	time_t now = time(0);
 	int i;
 
 #ifdef ZTS
