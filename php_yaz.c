@@ -60,6 +60,7 @@ typedef size_t zend_size_t;
 #define ADD_NEXT_INDEX_STRING(x, y) add_next_index_string(x, y, 1)
 #define ADD_NEXT_INDEX_STRINGl(x, y, z) add_next_index_stringl(x, y, z, 1)
 typedef int zend_size_t;
+typedef long zend_long;
 #endif
 
 struct Yaz_AssociationInfo {
@@ -254,13 +255,7 @@ static const char *array_lookup_string(HashTable *ht, const char *idx)
 	return 0;
 }
 
-static
-#if PHP_API_VERSION >= 20150101
-zend_long
-#else
-long
-#endif
-*array_lookup_long(HashTable *ht, const char *idx)
+static zend_long *array_lookup_long(HashTable *ht, const char *idx)
 {
 #if PHP_API_VERSION >= 20150101
 	zval *zv;
@@ -668,7 +663,7 @@ PHP_FUNCTION(yaz_wait)
 	int i, timeout = 15;
 
 	if (ZEND_NUM_ARGS() == 1) {
-		long *val = 0;
+		zend_long *val = 0;
 		long *event_bool = 0;
 		HashTable *options_ht = 0;
 		if (zend_parse_parameters(1 TSRMLS_CC, "a/", &pval_options) ==
@@ -1465,7 +1460,7 @@ PHP_FUNCTION(yaz_record)
 {
 	zval *pval_id;
 	Yaz_Association p;
-	long pos;
+	zend_long pos;
 	char *type;
 	zend_size_t type_len;
 
@@ -1711,7 +1706,7 @@ PHP_FUNCTION(yaz_range)
 {
 	zval *pval_id;
 	Yaz_Association p;
-	long start, number;
+	zend_long start, number;
 
 	if (ZEND_NUM_ARGS() != 3 ||
 		zend_parse_parameters(3 TSRMLS_CC, "zll", &pval_id, &start, &number)

@@ -5,6 +5,7 @@ yaz_record
 --FILE--
 <?php
 $z = yaz_connect("z3950.indexdata.com/marc");
+yaz_range($z, 1, 2);
 yaz_search($z, "rpn", "computer");
 yaz_syntax($z, "marc21");
 yaz_wait();
