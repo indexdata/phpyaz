@@ -1858,9 +1858,11 @@ PHP_FUNCTION(yaz_scan)
 	ZOOM_scanset_destroy(p->zoom_scan);
 	p->zoom_scan = 0;
 	if (p) {
-		option_set(p, "number", array_lookup_string(flags_ht, "number"));
-		option_set(p, "position", array_lookup_string(flags_ht, "position"));
-		option_set(p, "stepSize", array_lookup_string(flags_ht, "stepsize"));
+		if (flags_ht) {
+			option_set(p, "number", array_lookup_string(flags_ht, "number"));
+			option_set(p, "position", array_lookup_string(flags_ht, "position"));
+			option_set(p, "stepSize", array_lookup_string(flags_ht, "stepsize"));
+		}
 		p->zoom_scan = ZOOM_connection_scan(p->zoom_conn, query);
 	}
 	release_assoc(p);
