@@ -14,11 +14,11 @@ Find more information at:
   <email>adam@indexdata.dk</email>
   <active>yes</active>
  </lead>
- <date>2016-08-12</date>
- <time>14:36:00</time>
+ <date>2017-09-12</date>
+ <time>09:44:00</time>
  <version>
-  <release>1.2.1</release>
-  <api>1.2.1</api>
+  <release>1.2.2</release>
+  <api>1.2.2</api>
  </version>
  <stability>
   <release>stable</release>
@@ -26,7 +26,7 @@ Find more information at:
  </stability>
  <license uri="http://www.indexdata.com/licences/revised-bsd">revised BSD</license>
  <notes>
-Use YAZ 5 for Windows build. Fix "l" args for yaz_range and yaz_record.
+Fix yaz_scan - 3 args gives SEGV PHPYAZ-34
  </notes>
  <contents>
   <dir name="/">
