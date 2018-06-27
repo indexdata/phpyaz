@@ -832,8 +832,8 @@ PHP_FUNCTION(yaz_hits)
 	} else {
 		WRONG_PARAM_COUNT;
 	}
-	if (searchresult && array_init(searchresult) == FAILURE) {
-		RETURN_FALSE;
+	if (searchresult) {
+		array_init(searchresult);
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 
@@ -1923,9 +1923,8 @@ PHP_FUNCTION(yaz_scan_result)
 	}
 
 	array_init(return_value);
-
-	if (pval_opt && array_init(pval_opt) == FAILURE) {
-		RETURN_FALSE;
+	if (pval_opt) {
+			array_init(pval_opt);
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
