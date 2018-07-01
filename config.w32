@@ -1,4 +1,3 @@
-// $Id: config.w32,v 1.6 2007/06/02 18:52:42 dickmeiss Exp $
 // vim:ft=javascript
 
 ARG_WITH("yaz", "YAZ support (ANSI/NISO Z39.50)", "no");

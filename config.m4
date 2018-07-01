@@ -1,7 +1,3 @@
-dnl
-dnl $Id: config.m4,v 1.19 2007/05/16 07:10:38 dickmeiss Exp $
-dnl
-
 PHP_ARG_WITH(yaz,for YAZ support,
 [  --with-yaz[=DIR]        Include YAZ support (ANSI/NISO Z39.50). 
                           DIR is the YAZ bin install directory.])
