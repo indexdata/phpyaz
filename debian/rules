@@ -37,8 +37,8 @@ install: build
 
 	-mkdirhier "debian/tmp`/usr/bin/php-config --extension-dir`"
 	cd build-yaz; $(MAKE) EXTENSION_DIR="../debian/tmp`/usr/bin/php-config --extension-dir`" install
-	mkdir -p debian/tmp/etc/php/7.0/mods-available
-	cp debian/yaz.ini debian/tmp/etc/php/7.0/mods-available/yaz.ini
+	mkdir -p debian/tmp/etc/php/7.2/mods-available
+	cp debian/yaz.ini debian/tmp/etc/php/7.2/mods-available/yaz.ini
 
 # Build architecture-independent files here.
 binary-indep: build install
