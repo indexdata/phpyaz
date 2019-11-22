@@ -4,6 +4,6 @@ if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ] ; then
     if [ -x /usr/sbin/phpdismod ]; then 
         /usr/sbin/phpdismod yaz
     else
-        echo "WARN: php7.0-common has been removed, you need to cleanup /etc/php/7.0 yourself."
+        echo "WARN: php7.3-common has been removed, you need to cleanup /etc/php/7.3 yourself."
     fi
 fi

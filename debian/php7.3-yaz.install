@@ -1,0 +1,3 @@
+debian/tmp/usr/lib/php/*/*so
+debian/tmp/etc/php/*/mods-available/yaz.ini
+
