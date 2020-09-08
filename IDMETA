@@ -1,4 +1,4 @@
-DEBIAN_DIST="stretch"
-UBUNTU_DIST="yakkety xenial"
+DEBIAN_DIST=""
+UBUNTU_DIST="focal"
 VERSION=1.2.3
-NAME=php7.0-yaz
+NAME=php7.4-yaz
