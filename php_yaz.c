@@ -176,7 +176,6 @@ ZEND_END_ARG_INFO();
 ZEND_BEGIN_ARG_INFO_EX(arginfo_yaz_hits, 0, 0, 1)
     ZEND_ARG_INFO(0, id)
     ZEND_ARG_INFO(1, searchresult)
-    ZEND_ARG_INFO(0, query)
 ZEND_END_ARG_INFO();
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_yaz_record, 0, 0, 3)
@@ -244,7 +243,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_yaz_scan, 0, 0, 3)
     ZEND_ARG_INFO(0, flags)
 ZEND_END_ARG_INFO();
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_yaz_scan_result, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_yaz_scan_result, 0, 0, 1)
     ZEND_ARG_INFO(0, id)
     ZEND_ARG_INFO(1, options)
 ZEND_END_ARG_INFO();
@@ -264,7 +263,7 @@ ZEND_END_ARG_INFO();
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_databases, 0, 0, 2)
     ZEND_ARG_INFO(0, id)
-    ZEND_ARG_INFO(0, package)
+    ZEND_ARG_INFO(0, databases)
 ZEND_END_ARG_INFO();
 
 
