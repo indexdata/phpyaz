@@ -3,6 +3,7 @@ build-yaz
 build
 configure
 configure.in
+configure.ac
 run-tests.php
 Makefile
 Makefile.global
@@ -16,6 +17,7 @@ aclocal.m4
 install-sh
 libtool
 ltmain.sh
+ltmain.sh.backup
 missing
 mkinstalldirs
 modules
