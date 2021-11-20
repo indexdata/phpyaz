@@ -1338,7 +1338,7 @@ static void retval_array3_grs1(zval *return_value, Z_GenericRecord *p,
 				/* Data field */
 				Z_GenericRecord *sub = e->content->u.subtree;
 				int i;
-				for (i = 0; tag[i]; i++)
+				for (i = 0; tag[i] && i < 9; i++)
 				{
 					char ind_idx[5];
 					char ind_val[2];
