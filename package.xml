@@ -17,7 +17,7 @@ Find more information at:
  <date>2018-12-11</date>
  <time>11:35:00</time>
  <version>
-  <release>1.2.3</release>
+  <release>1.2.4</release>
   <api>1.2.2</api>
  </version>
  <stability>
@@ -26,7 +26,7 @@ Find more information at:
  </stability>
  <license uri="http://www.indexdata.com/licences/revised-bsd">revised BSD</license>
  <notes>
-  Fix for PHP 7.3 API changes, and array_init always succeeds
+  Bump for PHP8
  </notes>
  <contents>
   <dir name="/">
@@ -63,3 +63,4 @@ Find more information at:
   <configureoption default="autodetect" name="with-yaz" prompt="path to YAZ installation?" />
  </extsrcrelease>
 </package>
+
