@@ -6,7 +6,7 @@
 #ifndef PHP_YAZ_H
 #define PHP_YAZ_H
 
-#define PHP_YAZ_VERSION "1.2.3"
+#define PHP_YAZ_VERSION "1.2.4"
 
 #if HAVE_YAZ
 
@@ -48,11 +48,11 @@ PHP_FUNCTION(yaz_get_option);
 PHP_FUNCTION(yaz_es);
 
 ZEND_BEGIN_MODULE_GLOBALS(yaz)
-	int assoc_seq;
-	long max_links;
-	long keepalive;
-	char *log_file;
-	char *log_mask;
+int assoc_seq;
+long max_links;
+long keepalive;
+char *log_file;
+char *log_mask;
 ZEND_END_MODULE_GLOBALS(yaz)
 
 #ifdef ZTS
