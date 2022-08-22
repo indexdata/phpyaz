@@ -5,7 +5,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export DH_COMPAT=7
+export DH_COMPAT=10
 
 build: build-stamp
 build-stamp: build-yaz/configure
@@ -35,10 +35,9 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	-mkdirhier "debian/tmp`/usr/bin/php-config --extension-dir`"
 	cd build-yaz; $(MAKE) EXTENSION_DIR="../debian/tmp`/usr/bin/php-config --extension-dir`" install
-	mkdir -p debian/tmp/etc/php/7.0/mods-available
-	cp debian/yaz.ini debian/tmp/etc/php/7.0/mods-available/yaz.ini
+	mkdir -p debian/tmp/etc/php/8.1/mods-available
+	cp debian/yaz.ini debian/tmp/etc/php/8.1/mods-available/yaz.ini
 
 # Build architecture-independent files here.
 binary-indep: build install
