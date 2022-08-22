@@ -1,4 +1,4 @@
-DEBIAN_DIST="stretch"
-UBUNTU_DIST="yakkety xenial"
+DEBIAN_DIST=""
+UBUNTU_DIST="jammy"
 VERSION=1.2.4
-NAME=php8.0-yaz
+NAME=php8.1-yaz
