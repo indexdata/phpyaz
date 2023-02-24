@@ -1,8 +1,10 @@
 PHP_ARG_WITH(yaz,for YAZ support,
 [  --with-yaz             Include YAZ support (ANSI/NISO Z39.50)])
 
-if test "$PHP_YAZ" != "no"; then
+if test "$PHP_YAZ" = "yes"; then
+  AC_MSG_CHECKING([for YAZ libraries by calling pkg-config --exists yaz])
   if pkg-config --exists yaz; then
+    AC_MSG_RESULT([found])
     if pkg-config --atleast-version 3.0.2 yaz; then
       AC_DEFINE(HAVE_YAZ,1,[Whether you have YAZ])
       lib=`pkg-config --libs yaz`
@@ -26,6 +28,9 @@ if test "$PHP_YAZ" != "no"; then
       AC_MSG_ERROR([YAZ is too old. 3.0.2 or later required])
     fi
   else
-    AC_MSG_ERROR([YAZ not found (missing $yazconfig)])
+    AC_MSG_RESULT([not found])
+    AC_MSG_ERROR([YAZ development libraries missing])
   fi
+elif test "$PHP_YAZ" != "no"; then
+  AC_MSG_ERROR([with-yaz argument unsupported. Do not specify])
 fi
