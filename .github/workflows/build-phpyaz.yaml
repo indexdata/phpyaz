@@ -1,0 +1,21 @@
+name: Build phpyaz
+on: [push, pull_request]
+jobs:
+ build:
+  runs-on: ubuntu-latest
+  steps:
+   - uses: actions/checkout@v3
+     with:
+      fetch-depth: 1
+   - name: update packages
+     run: sudo apt update
+   - name: Install required and optional dependencies
+     run: >
+      sudo apt install php8.1-dev gcc make pkg-config libyaz-dev pkg-config 
+   - name: Run phpize for phpyaz
+     run: phpize
+   - name: Run configure for phpyaz
+     run: >
+      ./configure
+   - name: Run make test for phpyaz
+     run: NO_INTERACTION=1 make test
