@@ -11,7 +11,7 @@ jobs:
      run: sudo apt update
    - name: Install required and optional dependencies
      run: >
-      sudo apt install php8.1-dev gcc make pkg-config libyaz-dev pkg-config
+      sudo apt install php8.1-dev gcc make pkg-config libyaz-dev
    - name: Run phpize for phpyaz
      run: phpize
    - name: Run configure for phpyaz
