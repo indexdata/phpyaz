@@ -30,3 +30,4 @@ mkinstalldirs
 modules
 php_yaz.dep
 run-tests.php
+php_test_results_*
