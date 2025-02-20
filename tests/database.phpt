@@ -18,4 +18,4 @@ echo yaz_hits($z) . "\n";
 114:Unsupported Use attribute:99
 0
 0::
-10
+11
