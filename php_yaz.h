@@ -1,12 +1,12 @@
 /* This file is part of PHP YAZ.
- * Copyright (C) Index Data 2004-2018
+ * Copyright (C) Index Data 2004-2026
  * See the file LICENSE for details.
  */
 
 #ifndef PHP_YAZ_H
 #define PHP_YAZ_H
 
-#define PHP_YAZ_VERSION "1.2.4"
+#define PHP_YAZ_VERSION "1.2.5"
 
 #if HAVE_YAZ
 

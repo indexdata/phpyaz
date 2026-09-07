@@ -1,4 +1,4 @@
 DEBIAN_DIST=""
 UBUNTU_DIST="jammy"
-VERSION=1.2.4
+VERSION=1.2.5
 NAME=php8.1-yaz
