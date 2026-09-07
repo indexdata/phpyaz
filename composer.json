@@ -1,0 +1,9 @@
+{
+  "name": "indexdata/yaz",
+  "description": "Z39.50/SRU client for PHP using the YAZ toolkit",
+  "type": "php-ext",
+  "license": "BSD-3-Clause",
+  "php-ext": {
+    "extension-name": "yaz"
+  }
+}

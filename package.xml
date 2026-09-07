@@ -33,11 +33,11 @@ Find more information at:
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <file name="LICENSE" role="doc" />
+   <file name="composer.json" role="doc" />
    <file name="CREDITS" role="doc" />
    <file name="php_yaz.c" role="src" />
    <file name="php_yaz.h" role="src" />
    <file name="README" role="doc" />
-   <file name="yaz.dsp" role="src" />
    <dir name="tests">
      <file name="connect.phpt" role="test"/>
      <file name="ccl.phpt" role="test"/>
@@ -59,8 +59,5 @@ Find more information at:
   </required>
  </dependencies>
  <providesextension>yaz</providesextension>
- <extsrcrelease>
-  <configureoption default="autodetect" name="with-yaz" prompt="path to YAZ installation?" />
- </extsrcrelease>
+ <extsrcrelease />
 </package>
-
