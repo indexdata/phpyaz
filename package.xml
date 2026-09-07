@@ -6,8 +6,8 @@
  <description>This extension implements a Z39.50/SRU client for PHP using the YAZ toolkit and the ZOOM framework.
 
 Find more information at:
-  http://www.indexdata.com/phpyaz
-  http://www.indexdata.com/yaz</description>
+  https://www.indexdata.com/phpyaz
+  https://www.indexdata.com/yaz</description>
  <lead>
   <name>Adam Dickmeiss</name>
   <user>dickmeiss</user>
@@ -24,9 +24,9 @@ Find more information at:
   <release>stable</release>
   <api>stable</api>
  </stability>
- <license uri="http://www.indexdata.com/licences/revised-bsd">revised BSD</license>
+ <license uri="https://www.indexdata.com/licences/revised-bsd">revised BSD</license>
  <notes>
-  Bump for PHP8
+  PIE
  </notes>
  <contents>
   <dir name="/">
