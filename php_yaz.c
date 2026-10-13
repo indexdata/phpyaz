@@ -492,13 +492,15 @@ PHP_FUNCTION(yaz_connect)
 	if (ZEND_NUM_ARGS() == 1) {
 		if (zend_parse_parameters(1 TSRMLS_CC, "s", &zurl_str, &zurl_len)
 			== FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 	} else if (ZEND_NUM_ARGS() == 2) {
 		zval *user = 0;
 		if (zend_parse_parameters(2 TSRMLS_CC, "sz", &zurl_str, &zurl_len,
 								  &user) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 
 		if (Z_TYPE_P(user) == IS_ARRAY) {
@@ -541,7 +543,8 @@ PHP_FUNCTION(yaz_connect)
 #endif
 		}
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	for (cp = zurl_str; *cp && strchr("\t\n ", *cp); cp++);
 	if (!*cp) {
@@ -653,7 +656,8 @@ PHP_FUNCTION(yaz_close)
 
 	if (ZEND_NUM_ARGS() != 1 || zend_parse_parameters(1 TSRMLS_CC, "z", &id)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (!p) {
@@ -682,7 +686,8 @@ PHP_FUNCTION(yaz_search)
         zend_parse_parameters(3 TSRMLS_CC, "zss", &id,
 							  &type_str, &type_len,
 							  &query_str, &query_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (!p) {
@@ -740,7 +745,8 @@ PHP_FUNCTION(yaz_present)
 
 	if (ZEND_NUM_ARGS() != 1 || zend_parse_parameters(1 TSRMLS_CC, "z", &id)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (!p) {
@@ -776,7 +782,8 @@ PHP_FUNCTION(yaz_wait)
 		HashTable *options_ht = 0;
 		if (zend_parse_parameters(1 TSRMLS_CC, "a/", &pval_options) ==
 			FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 #if PHP_API_VERSION >= 20150101
 		options_ht = Z_ARRVAL_P(pval_options);
@@ -792,7 +799,8 @@ PHP_FUNCTION(yaz_wait)
 			event_mode = 1;
 	}
 	else if (ZEND_NUM_ARGS() > 1) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 #ifdef ZTS
 	tsrm_mutex_lock(yaz_mutex);
@@ -851,7 +859,8 @@ PHP_FUNCTION(yaz_errno)
 
 	if (ZEND_NUM_ARGS() != 1 || zend_parse_parameters(1 TSRMLS_CC, "z", &id)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (!p) {
@@ -871,7 +880,8 @@ PHP_FUNCTION(yaz_error)
 
 	if (ZEND_NUM_ARGS() != 1 || zend_parse_parameters(1 TSRMLS_CC, "z", &id)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (p) {
@@ -903,7 +913,8 @@ PHP_FUNCTION(yaz_addinfo)
 
 	if (ZEND_NUM_ARGS() != 1 || zend_parse_parameters(1 TSRMLS_CC, "z", &id)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, id, &p);
 	if (p) {
@@ -930,15 +941,18 @@ PHP_FUNCTION(yaz_hits)
 
 	if (ZEND_NUM_ARGS() == 1) {
 		if (zend_parse_parameters(1 TSRMLS_CC, "z", &id) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 	} else if (ZEND_NUM_ARGS() == 2) {
 		if (zend_parse_parameters(2 TSRMLS_CC, "zz/", &id, &searchresult)
 			== FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	if (searchresult) {
 		array_init(searchresult);
@@ -1573,12 +1587,14 @@ PHP_FUNCTION(yaz_record)
 	zend_size_t type_len;
 
 	if (ZEND_NUM_ARGS() != 3) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	if (zend_parse_parameters(3 TSRMLS_CC, "zls", &pval_id, &pos,
 							  &type, &type_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
@@ -1652,7 +1668,8 @@ PHP_FUNCTION(yaz_syntax)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "zs", &pval_id,
 							  &syntax, &syntax_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
@@ -1673,7 +1690,8 @@ PHP_FUNCTION(yaz_element)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "zs", &pval_id,
 							  &element, &element_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 
@@ -1694,7 +1712,8 @@ PHP_FUNCTION(yaz_schema)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "zs", &pval_id,
 							  &schema, &schema_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
@@ -1713,7 +1732,8 @@ PHP_FUNCTION(yaz_set_option)
 		zval *pval_ar, *pval_id;
 		if (zend_parse_parameters(2 TSRMLS_CC, "za",
 								  &pval_id, &pval_ar) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 		get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 		if (p) {
@@ -1761,13 +1781,15 @@ PHP_FUNCTION(yaz_set_option)
 		if (zend_parse_parameters(3 TSRMLS_CC, "zss",
 								  &pval_id, &name, &name_len,
 								  &value, &value_len) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 		get_assoc (INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 		option_set(p, name, value);
 		release_assoc(p);
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 }
 /* }}} */
@@ -1784,7 +1806,8 @@ PHP_FUNCTION(yaz_get_option)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "zs", &pval_id, &name, &name_len)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -1819,7 +1842,8 @@ PHP_FUNCTION(yaz_range)
 	if (ZEND_NUM_ARGS() != 3 ||
 		zend_parse_parameters(3 TSRMLS_CC, "zll", &pval_id, &start, &number)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
@@ -1841,7 +1865,8 @@ PHP_FUNCTION(yaz_sort)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "zs", &pval_id, &criteria,
 							  &criteria_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
@@ -1870,7 +1895,8 @@ PHP_FUNCTION(yaz_itemorder)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "za", &pval_id, &pval_package) ==
 		FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -1906,7 +1932,8 @@ PHP_FUNCTION(yaz_es)
 	if (ZEND_NUM_ARGS() != 3 ||
 		zend_parse_parameters(3 TSRMLS_CC, "zsa", &pval_id,
 							  &type, &type_len, &pval_package) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -1943,13 +1970,15 @@ PHP_FUNCTION(yaz_scan)
 		if (zend_parse_parameters(3 TSRMLS_CC, "zss",
 								  &pval_id, &type, &type_len,
 								  &query, &query_len) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 	} else if (ZEND_NUM_ARGS() == 4) {
 		if (zend_parse_parameters(4 TSRMLS_CC, "zssa",
 								  &pval_id, &type, &type_len,
 								  &query, &query_len, &pval_flags) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 
 		flags_ht =
@@ -1960,7 +1989,8 @@ PHP_FUNCTION(yaz_scan)
 #endif
 			;
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	ZOOM_scanset_destroy(p->zoom_scan);
@@ -1986,7 +2016,8 @@ PHP_FUNCTION(yaz_es_result)
 
 	if (ZEND_NUM_ARGS() != 1 || zend_parse_parameters(1 TSRMLS_CC, "z",
 													  &pval_id)	== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	array_init(return_value);
@@ -2019,15 +2050,18 @@ PHP_FUNCTION(yaz_scan_result)
 	if (ZEND_NUM_ARGS() == 2) {
 		if (zend_parse_parameters(2 TSRMLS_CC, "zz/",
 								  &pval_id, &pval_opt) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 	} else if (ZEND_NUM_ARGS() == 1) {
 		if (zend_parse_parameters(1 TSRMLS_CC, "z",
 								  &pval_id) == FAILURE) {
-			WRONG_PARAM_COUNT;
+			zend_wrong_param_count();
+			return;
 		}
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	array_init(return_value);
@@ -2117,7 +2151,8 @@ PHP_FUNCTION(yaz_ccl_conf)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "za", &pval_id, &pval_package)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -2176,10 +2211,11 @@ PHP_FUNCTION(yaz_ccl_parse)
 		zend_parse_parameters(3 TSRMLS_CC, "zsz/",
 							  &pval_id, &query, &query_len, &pval_res)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
-	zval_dtor(pval_res);
+	zval_ptr_dtor_nogc(pval_res);
 	array_init(pval_res);
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -2273,10 +2309,11 @@ PHP_FUNCTION(yaz_cql_parse)
 		zend_parse_parameters(4 TSRMLS_CC, "zsz/b",
 							  &pval_id, &query, &query_len, &pval_res, &reverse)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
-	zval_dtor(pval_res);
+	zval_ptr_dtor_nogc(pval_res);
 	array_init(pval_res);
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -2353,7 +2390,8 @@ PHP_FUNCTION(yaz_cql_conf)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "za", &pval_id, &pval_package)
 		== FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
 	if (p) {
@@ -2415,7 +2453,8 @@ PHP_FUNCTION(yaz_database)
 	if (ZEND_NUM_ARGS() != 2 ||
 		zend_parse_parameters(2 TSRMLS_CC, "zs", &pval_id,
 							  &database, &database_len) == FAILURE) {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count();
+		return;
 	}
 
 	get_assoc(INTERNAL_FUNCTION_PARAM_PASSTHRU, pval_id, &p);
