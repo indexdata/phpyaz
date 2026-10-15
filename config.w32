@@ -16,10 +16,10 @@ function yaz_check_version()
 	c = file_get_contents(yaz_h + "\\yaz\\yaz-version.h");
 	if (typeof(c) == "string" && c.match(/YAZ_VERSIONL\s+(0x[a-zA-Z0-9]+)/)) {
 		v = RegExp.$1;
-		if (parseInt(v) >= 0x50000) {
+		if (parseInt(v) >= 0x50100) {
 			return true;
 		}
-		WARNING("yaz not enabled; version 5.0.0 or higher required; you have version " + v);
+		WARNING("yaz not enabled; version 5.1.0 or higher required; you have version " + v);
 	}
 	return false;
 }

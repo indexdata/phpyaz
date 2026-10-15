@@ -17,9 +17,9 @@
 #include "php_yaz.h"
 
 #ifndef YAZ_VERSIONL
-#error YAZ version 3.0.2 or later must be used.
-#elif YAZ_VERSIONL < 0x030020
-#error YAZ version 3.0.2 or later must be used.
+#error YAZ version 5.1.0 or later must be used.
+#elif YAZ_VERSIONL < 0x050100
+#error YAZ version 5.1.0 or later must be used.
 #endif
 
 #ifdef PHP_WIN32
@@ -36,9 +36,7 @@
 #include <yaz/zoom.h>
 #include <yaz/pquery.h>
 
-#if YAZ_VERSIONL >= 0x050100
 #include <yaz/rpn2cql.h>
-#endif
 
 #ifndef ODR_INT_PRINTF
 #define ODR_INT_PRINTF "%d"
@@ -50,9 +48,7 @@ typedef struct Yaz_AssociationInfo *Yaz_Association;
 
 struct Yaz_AssociationInfo {
 	CCL_bibset bibset;
-#if YAZ_VERSIONL >= 0x050100
 	cql_transform_t ct;
-#endif
 	ZOOM_connection zoom_conn;
 	ZOOM_resultset zoom_set;
 	ZOOM_scanset zoom_scan;
@@ -80,9 +76,7 @@ static Yaz_Association yaz_association_mk()
 	p->order = 0;
 	p->persistent = 0;
 	p->bibset = ccl_qual_mk();
-#if YAZ_VERSIONL >= 0x050100
 	p->ct = cql_transform_create();
-#endif
 	p->time_stamp = 0;
 	return p;
 }
@@ -93,9 +87,7 @@ static void yaz_association_destroy(Yaz_Association p)
 		return;
 	}
 
-#if YAZ_VERSIONL >= 0x050100
 	cql_transform_close(p->ct);
-#endif
 	ZOOM_resultset_destroy(p->zoom_set);
 	ZOOM_scanset_destroy(p->zoom_scan);
 	ZOOM_package_destroy(p->zoom_package);
@@ -262,10 +254,8 @@ zend_function_entry yaz_functions [] = {
 	PHP_FE(yaz_present, arginfo_yaz_present)
 	PHP_FE(yaz_ccl_conf, arginfo_yaz_ccl_conf)
 	PHP_FE(yaz_ccl_parse, arginfo_yaz_ccl_parse)
-#if YAZ_VERSIONL >= 0x050100
 	PHP_FE(yaz_cql_parse, arginfo_yaz_cql_parse)
 	PHP_FE(yaz_cql_conf, arginfo_yaz_cql_conf)
-#endif
 	PHP_FE(yaz_database, arginfo_databases)
 	PHP_FE(yaz_sort, arginfo_yaz_sort)
 	PHP_FE(yaz_schema, arginfo_yaz_schema)
@@ -1884,11 +1874,7 @@ PHP_FUNCTION(yaz_scan_result)
 	if (p && p->zoom_scan) {
 		size_t pos = 0;
 		/* ZOOM_scanset_term changed from YAZ 3 to YAZ 4 */
-#if YAZ_VERSIONL >= 0x040000
 		size_t occ, len;
-#else
-		int occ, len;
-#endif
 		size_t size = ZOOM_scanset_size(p->zoom_scan);
 
 		for (pos = 0; pos < size; pos++) {
@@ -2062,8 +2048,6 @@ PHP_FUNCTION(yaz_ccl_parse)
 /* }}} */
 
 
-#if YAZ_VERSIONL >= 0x050100
-
 /* {{{ proto bool yaz_cql_parse(resource id, string cql, array res, bool rev)
    Parse a CQL query */
 PHP_FUNCTION(yaz_cql_parse)
@@ -2146,9 +2130,6 @@ PHP_FUNCTION(yaz_cql_parse)
 }
 /* }}} */
 
-#endif
-
-#if YAZ_VERSIONL >= 0x050100
 /* {{{ proto void yaz_cql_conf(resource id, array package)
    Configure CQL package */
 PHP_FUNCTION(yaz_cql_conf)
@@ -2184,7 +2165,6 @@ PHP_FUNCTION(yaz_cql_conf)
 	release_assoc(p);
 }
 /* }}} */
-#endif
 
 /* {{{ proto bool yaz_database (resource id, string databases)
    Specify the databases within a session */
