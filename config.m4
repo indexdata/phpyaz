@@ -5,7 +5,7 @@ if test "$PHP_YAZ" = "yes"; then
   AC_MSG_CHECKING([for YAZ libraries by calling pkg-config --exists yaz])
   if pkg-config --exists yaz; then
     AC_MSG_RESULT([found])
-    if pkg-config --atleast-version 3.0.2 yaz; then
+    if pkg-config --atleast-version 5.1.0 yaz; then
       lib=`pkg-config --libs yaz`
       for c in $lib; do
        case $c in
@@ -24,7 +24,7 @@ if test "$PHP_YAZ" = "yes"; then
       PHP_NEW_EXTENSION(yaz, php_yaz.c, $ext_shared)
       PHP_SUBST(YAZ_SHARED_LIBADD)
     else
-      AC_MSG_ERROR([YAZ is too old. 3.0.2 or later required])
+      AC_MSG_ERROR([YAZ is too old. 5.1.0 or later required])
     fi
   else
     AC_MSG_RESULT([not found])
