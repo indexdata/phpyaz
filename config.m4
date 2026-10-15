@@ -6,7 +6,6 @@ if test "$PHP_YAZ" = "yes"; then
   if pkg-config --exists yaz; then
     AC_MSG_RESULT([found])
     if pkg-config --atleast-version 3.0.2 yaz; then
-      AC_DEFINE(HAVE_YAZ,1,[Whether you have YAZ])
       lib=`pkg-config --libs yaz`
       for c in $lib; do
        case $c in

@@ -10,8 +10,6 @@
 #include "php.h"
 #include "php_ini.h"
 
-#if HAVE_YAZ
-
 #include "ext/standard/info.h"
 
 #include <yaz/yaz-version.h>
@@ -2398,9 +2396,6 @@ zend_module_entry yaz_module_entry = {
 	PHP_YAZ_VERSION,
 	STANDARD_MODULE_PROPERTIES
 };
-
-
-#endif
 
 /*
  * Local variables:
