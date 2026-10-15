@@ -8,8 +8,6 @@
 
 #define PHP_YAZ_VERSION "1.2.5"
 
-#if HAVE_YAZ
-
 #ifdef ZTS
 #include "TSRM.h"
 #endif
@@ -60,11 +58,5 @@ ZEND_END_MODULE_GLOBALS(yaz)
 #else
 #define YAZSG(v) (yaz_globals.v)
 #endif
-
-#else
-
-#define yaz_module_ptr NULL
-#endif
-
 #define phpext_yaz_ptr yaz_module_ptr
 #endif
