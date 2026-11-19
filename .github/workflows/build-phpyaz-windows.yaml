@@ -1,4 +1,4 @@
-# Build YAZ once with VS 2022, then reuse it for PHP's TS and NTS builds.
+# Build YAZ once per compiler, then reuse it for PHP's TS and NTS builds.
 name: Build phpyaz on Windows
 
 on:
@@ -16,9 +16,19 @@ concurrency:
 
 jobs:
   build-yaz:
-    name: Build YAZ (VS 2022, x64)
-    runs-on: windows-2022
+    name: Build YAZ (VS ${{ matrix.vs }}, x64)
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - vs: '2022'
+            vs-major: '17'
+            os: windows-2022
+          - vs: '2026'
+            vs-major: '18'
+            os: windows-2025-vs2026
     defaults:
       run:
         shell: pwsh
@@ -59,11 +69,24 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-          vsversion: '2022'
+          # Discover the latest installation: vsversion caps minor versions at 9.
+
+      - name: Verify MSVC version
+        env:
+          EXPECTED_VS_MAJOR: ${{ matrix.vs-major }}
+        run: |
+          if (!$env:VisualStudioVersion -or
+              ($env:VisualStudioVersion.Split('.')[0] -ne $env:EXPECTED_VS_MAJOR)) {
+            throw "Expected Visual Studio $env:EXPECTED_VS_MAJOR.x, found '$env:VisualStudioVersion'"
+          }
+          Write-Output "Visual Studio $env:VisualStudioVersion"
+          Write-Output "Compiler: $((Get-Command cl.exe).Source)"
 
       - name: Configure dependency cache
         id: vcpkg
         run: |
+          # MSVC setup points VCPKG_ROOT at Visual Studio's bundled copy.
+          "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> $env:GITHUB_ENV
           $revision = git -C $env:VCPKG_INSTALLATION_ROOT rev-parse HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "revision=$revision" >> $env:GITHUB_OUTPUT
@@ -75,9 +98,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/vcpkg-cache
-          key: windows-2022-x64-vcpkg-${{ steps.vcpkg.outputs.revision }}-${{ hashFiles('.github/workflows/build-phpyaz-windows.yaml') }}
+          key: >-
+            ${{ matrix.os }}-x64-vcpkg-${{ steps.vcpkg.outputs.revision }}-${{ hashFiles('.github/workflows/build-phpyaz-windows.yaml') }}
           restore-keys: |
-            windows-2022-x64-vcpkg-${{ steps.vcpkg.outputs.revision }}-
+            ${{ matrix.os }}-x64-vcpkg-${{ steps.vcpkg.outputs.revision }}-
 
       - name: Install libraries
         run: |
@@ -110,7 +134,7 @@ jobs:
       - name: Upload YAZ SDK
         uses: actions/upload-artifact@v4
         with:
-          name: yaz-vs2022-x64
+          name: yaz-vs${{ matrix.vs }}-x64
           path: yaz-sdk/
           if-no-files-found: error
 
@@ -122,15 +146,22 @@ jobs:
           }
 
   build-phpyaz:
-    name: Build phpyaz (PHP ${{ matrix.php }}, ${{ matrix.ts }}, x64)
+    name: Build phpyaz (PHP ${{ matrix.php }}, ${{ matrix.ts }}, VS ${{ matrix.vs }}, x64)
     needs: build-yaz
-    runs-on: windows-2022
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.4']
+        php: ['8.4', '8.6']
         ts: [ts, nts]
+        include:
+          - php: '8.4'
+            vs: '2022'
+            os: windows-2022
+          - php: '8.6'
+            vs: '2026'
+            os: windows-2025-vs2026
     defaults:
       run:
         shell: pwsh
@@ -142,7 +173,7 @@ jobs:
       - name: Download YAZ SDK
         uses: actions/download-artifact@v4
         with:
-          name: yaz-vs2022-x64
+          name: yaz-vs${{ matrix.vs }}-x64
           path: ${{ runner.temp }}/yaz-sdk
 
       - name: Set up YAZ runtime libraries
