@@ -1,0 +1,201 @@
+# Build YAZ once with VS 2022, then reuse it for PHP's TS and NTS builds.
+name: Build phpyaz on Windows
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-yaz:
+    name: Build YAZ (VS 2022, x64)
+    runs-on: windows-2022
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Checkout YAZ
+        uses: actions/checkout@v6
+        with:
+          repository: IndexData/yaz
+          ref: master
+          path: yaz
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Set up build tools
+        run: |
+          choco install winflexbison3 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Locate the Tcl interpreter bundled with Git for Windows.
+          $gitExecPath = git --exec-path
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $gitRuntime = Split-Path (Split-Path $gitExecPath -Parent) -Parent
+          $tclBin = Join-Path $gitRuntime 'bin'
+          $tcl = Get-ChildItem -LiteralPath $tclBin -Filter 'tclsh*.exe' -File |
+            Sort-Object Name | Select-Object -First 1
+          if (!$tcl) {
+            throw "Git for Windows Tcl interpreter not found in $tclBin"
+          }
+          'puts [info patchlevel]; exit 0' | & $tcl.FullName
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $tclBin >> $env:GITHUB_PATH
+          "YAZ_TCL=$($tcl.Name)" >> $env:GITHUB_ENV
+
+      - name: Set up MSVC x64
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          vsversion: '2022'
+
+      - name: Configure dependency cache
+        id: vcpkg
+        run: |
+          $revision = git -C $env:VCPKG_INSTALLATION_ROOT rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "revision=$revision" >> $env:GITHUB_OUTPUT
+          $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-cache'
+          New-Item -ItemType Directory -Force $cache | Out-Null
+          "VCPKG_BINARY_SOURCES=clear;files,$cache,readwrite" >> $env:GITHUB_ENV
+
+      - name: Cache dependency builds
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-cache
+          key: windows-2022-x64-vcpkg-${{ steps.vcpkg.outputs.revision }}-${{ hashFiles('.github/workflows/build-phpyaz-windows.yaml') }}
+          restore-keys: |
+            windows-2022-x64-vcpkg-${{ steps.vcpkg.outputs.revision }}-
+
+      - name: Install libraries
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install --triplet x64-windows libxml2 libxslt libiconv
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build YAZ with NMAKE
+        working-directory: yaz/win
+        run: |
+          $prefix = Join-Path $env:VCPKG_INSTALLATION_ROOT 'installed\x64-windows'
+          & nmake /nologo /f makefile BARCH=x64 DEBUG=0 CPP=cl "TCL=$env:YAZ_TCL" `
+            HAVE_ICU=0 HAVE_LIBXML2=1 HAVE_LIBXSLT=1 HAVE_ICONV=1 `
+            "ICONV_DIR=$prefix" "LIBXML2_DIR=$prefix" "LIBXSLT_DIR=$prefix" dll |
+            Tee-Object -FilePath nmake-build.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Stage YAZ SDK and runtime libraries
+        run: |
+          $prefix = Join-Path $env:VCPKG_INSTALLATION_ROOT 'installed\x64-windows'
+          New-Item -ItemType Directory -Force yaz-sdk\include\yaz, yaz-sdk\lib, yaz-sdk\bin | Out-Null
+          Copy-Item "$prefix\include\*" yaz-sdk\include -Recurse
+          Copy-Item yaz\src\yaz\*.h yaz-sdk\include\yaz
+          Copy-Item yaz\lib\yaz5.lib yaz-sdk\lib
+          Copy-Item yaz\bin\yaz5.dll yaz-sdk\bin
+          # Include transitive DLL dependencies without assuming their filenames.
+          Copy-Item "$prefix\bin\*.dll" yaz-sdk\bin
+          Copy-Item yaz\LICENSE yaz-sdk
+          Copy-Item "$prefix\share" yaz-sdk\share -Recurse
+
+      - name: Upload YAZ SDK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaz-vs2022-x64
+          path: yaz-sdk/
+          if-no-files-found: error
+
+      - name: Show YAZ build failures
+        if: failure()
+        run: |
+          if (Test-Path yaz\win\nmake-build.log) {
+            Get-Content yaz\win\nmake-build.log
+          }
+
+  build-phpyaz:
+    name: Build phpyaz (PHP ${{ matrix.php }}, ${{ matrix.ts }}, x64)
+    needs: build-yaz
+    runs-on: windows-2022
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4']
+        ts: [ts, nts]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Download YAZ SDK
+        uses: actions/download-artifact@v4
+        with:
+          name: yaz-vs2022-x64
+          path: ${{ runner.temp }}/yaz-sdk
+
+      - name: Set up YAZ runtime libraries
+        run: |
+          "$env:RUNNER_TEMP\yaz-sdk\bin" >> $env:GITHUB_PATH
+
+      - name: Build PHP extension
+        uses: php/php-windows-builder/extension@v1
+        env:
+          auto-detect-libs: 'false'
+          artifact-naming-scheme: pecl
+        with:
+          php-version: ${{ matrix.php }}
+          ts: ${{ matrix.ts }}
+          arch: x64
+          build-directory: ${{ runner.temp }}/phpyaz-build
+          args: >-
+            --with-yaz
+            --with-extra-includes="${{ runner.temp }}\yaz-sdk\include"
+            --with-extra-libs="${{ runner.temp }}\yaz-sdk\lib"
+          run-tests: 'false'
+
+      - name: Check extension loads and run tests
+        env:
+          NO_INTERACTION: 1
+          REPORT_EXIT_STATUS: 1
+        run: |
+          $builds = Join-Path $env:RUNNER_TEMP 'phpyaz-build'
+          $php = @(Get-ChildItem $builds -Recurse -Filter php.exe -File |
+            Where-Object { $_.Directory.Name -eq 'php-bin' })
+          $extension = @(Get-ChildItem $builds -Recurse -Filter php_yaz.dll -File |
+            Where-Object { $_.Directory.Name -in 'Release', 'Release_TS' })
+          if ($php.Count -ne 1 -or $extension.Count -ne 1) {
+            throw 'Expected one PHP executable and one built YAZ extension'
+          }
+          $php = $php[0].FullName
+          $extension = $extension[0].FullName
+          & $php -n -d "extension=$extension" -r 'exit(extension_loaded("yaz") ? 0 : 1);'
+          if ($LASTEXITCODE -ne 0) { throw 'The YAZ extension could not be loaded' }
+          $env:TEST_PHP_EXECUTABLE = $php
+          Set-Location (Split-Path (Split-Path $php -Parent) -Parent)
+          & $php -n run-tests.php -n -d "extension=$extension" --show-diff tests
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Show build and test failures
+        if: failure()
+        run: |
+          $builds = Join-Path $env:RUNNER_TEMP 'phpyaz-build'
+          if (Test-Path $builds) {
+            Get-ChildItem $builds -Recurse -File -Include build-*.txt, *.log, *.diff |
+              ForEach-Object {
+                Write-Output "::group::$($_.FullName)"
+                Get-Content $_.FullName
+                Write-Output '::endgroup::'
+              }
+          }
