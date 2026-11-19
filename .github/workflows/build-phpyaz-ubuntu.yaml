@@ -1,0 +1,55 @@
+name: Build phpyaz on Ubuntu
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            php-dev gcc make pkg-config libyaz-dev
+
+      - name: Run phpize
+        run: phpize
+
+      - name: Configure with GCC
+        env:
+          CC: gcc
+          CFLAGS: -g -O2 -Wall
+        run: ./configure --with-yaz
+
+      - name: Build and test with GCC
+        env:
+          NO_INTERACTION: 1
+          REPORT_EXIT_STATUS: 1
+        run: make -j4 test
+
+      - name: Show build and test failures
+        if: failure()
+        run: |
+          for log in config.log tests/*.log tests/*.diff; do
+            if test -f "$log"; then
+              echo "::group::$log"
+              cat "$log"
+              echo "::endgroup::"
+            fi
+          done
