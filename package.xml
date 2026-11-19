@@ -37,7 +37,7 @@ Find more information at:
    <file name="CREDITS" role="doc" />
    <file name="php_yaz.c" role="src" />
    <file name="php_yaz.h" role="src" />
-   <file name="README" role="doc" />
+   <file name="README.md" role="doc" />
    <dir name="tests">
      <file name="connect.phpt" role="test"/>
      <file name="ccl.phpt" role="test"/>
